@@ -1,4 +1,14 @@
-import { eq, count, sql, getTableColumns } from 'drizzle-orm';
+import {
+  eq,
+  count,
+  sql,
+  getTableColumns,
+  and,
+  or,
+  gte,
+  lte,
+  like,
+} from 'drizzle-orm';
 import type { Database } from '../database/connection';
 import { games, gameCopies, type Game } from '../database/schema';
 
@@ -8,9 +18,71 @@ export interface GameWithAvailability extends Game {
   availableCopies: number;
 }
 
+// Filtering options interface
+export interface GameFilters {
+  players?: number;
+  duration?: 'quick' | 'medium' | 'long';
+  complexity?: number;
+  search?: string;
+  availableOnly?: boolean;
+}
+
 export async function getAllGamesWithAvailability(
   db: Database
 ): Promise<GameWithAvailability[]> {
+  return getGamesWithFilters(db, {});
+}
+
+export async function getGamesWithFilters(
+  db: Database,
+  filters: GameFilters
+): Promise<GameWithAvailability[]> {
+  // Build where conditions dynamically
+  const conditions = [eq(games.isActive, true)];
+
+  // Player count filter
+  if (filters.players) {
+    conditions.push(
+      and(
+        lte(games.minPlayers, filters.players),
+        gte(games.maxPlayers, filters.players)
+      )!
+    );
+  }
+
+  // Duration filter
+  if (filters.duration) {
+    switch (filters.duration) {
+      case 'quick':
+        conditions.push(lte(games.maxDuration, 30));
+        break;
+      case 'medium':
+        conditions.push(
+          and(gte(games.minDuration, 30), lte(games.maxDuration, 60))!
+        );
+        break;
+      case 'long':
+        conditions.push(gte(games.minDuration, 60));
+        break;
+    }
+  }
+
+  // Complexity filter
+  if (filters.complexity) {
+    conditions.push(eq(games.complexityLevel, filters.complexity));
+  }
+
+  // Search filter (case-insensitive using LOWER for SQLite)
+  if (filters.search) {
+    const searchTerm = filters.search.toLowerCase();
+    conditions.push(
+      or(
+        like(sql`LOWER(${games.name})`, `%${searchTerm}%`),
+        like(sql`LOWER(${games.description})`, `%${searchTerm}%`)
+      )!
+    );
+  }
+
   const result = await db
     .select({
       ...getTableColumns(games),
@@ -19,8 +91,17 @@ export async function getAllGamesWithAvailability(
     })
     .from(games)
     .leftJoin(gameCopies, eq(games.id, gameCopies.gameId))
-    .where(eq(games.isActive, true))
-    .groupBy(games.id);
+    .where(and(...conditions))
+    .groupBy(games.id)
+    .orderBy(
+      sql`COUNT(CASE WHEN ${gameCopies.status} = 'available' THEN 1 END) DESC`,
+      games.name
+    );
+
+  // Filter for available only if requested
+  if (filters.availableOnly) {
+    return result.filter((game) => game.availableCopies > 0);
+  }
 
   return result;
 }
