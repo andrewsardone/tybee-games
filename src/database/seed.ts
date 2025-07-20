@@ -98,22 +98,22 @@ export async function seedDatabase(db: ReturnType<typeof createDatabase>) {
     // Settlers of Catan - 2 copies
     { id: 'settlers-copy-1', gameId: 'settlers-of-catan', copyNumber: 1, location: 'Shelf A-1' },
     { id: 'settlers-copy-2', gameId: 'settlers-of-catan', copyNumber: 2, location: 'Shelf A-1' },
-    
+
     // Ticket to Ride - 2 copies
     { id: 'ticket-copy-1', gameId: 'ticket-to-ride', copyNumber: 1, location: 'Shelf A-2' },
     { id: 'ticket-copy-2', gameId: 'ticket-to-ride', copyNumber: 2, location: 'Shelf A-2' },
-    
+
     // Azul - 1 copy
     { id: 'azul-copy-1', gameId: 'azul', copyNumber: 1, location: 'Shelf B-1' },
-    
+
     // Wingspan - 1 copy
     { id: 'wingspan-copy-1', gameId: 'wingspan', copyNumber: 1, location: 'Shelf B-2' },
-    
+
     // Codenames - 3 copies (popular party game)
     { id: 'codenames-copy-1', gameId: 'codenames', copyNumber: 1, location: 'Shelf C-1' },
     { id: 'codenames-copy-2', gameId: 'codenames', copyNumber: 2, location: 'Shelf C-1' },
     { id: 'codenames-copy-3', gameId: 'codenames', copyNumber: 3, location: 'Shelf C-1' },
-    
+
     // Splendor - 1 copy
     { id: 'splendor-copy-1', gameId: 'splendor', copyNumber: 1, location: 'Shelf B-3' },
   ]

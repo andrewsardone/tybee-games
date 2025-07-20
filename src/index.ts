@@ -102,35 +102,35 @@ app.get('/games', (c) => {
   const games = [
     {
       id: 1,
-      title: "Settlers of Catan",
-      description: "A strategy game of trading, building, and settling",
+      title: 'Settlers of Catan',
+      description: 'A strategy game of trading, building, and settling',
       available: true,
-      players: "3-4 players",
-      duration: "60-90 min"
+      players: '3-4 players',
+      duration: '60-90 min'
     },
     {
       id: 2,
-      title: "Ticket to Ride",
-      description: "A railway-themed board game about connecting cities",
+      title: 'Ticket to Ride',
+      description: 'A railway-themed board game about connecting cities',
       available: false,
-      players: "2-5 players", 
-      duration: "30-60 min"
+      players: '2-5 players',
+      duration: '30-60 min'
     },
     {
       id: 3,
-      title: "Azul",
-      description: "A tile-placement game inspired by Portuguese azulejos",
+      title: 'Azul',
+      description: 'A tile-placement game inspired by Portuguese azulejos',
       available: true,
-      players: "2-4 players",
-      duration: "30-45 min"
+      players: '2-4 players',
+      duration: '30-45 min'
     },
     {
       id: 4,
-      title: "Wingspan",
-      description: "A beautiful engine-building game about birds",
+      title: 'Wingspan',
+      description: 'A beautiful engine-building game about birds',
       available: true,
-      players: "1-5 players",
-      duration: "40-70 min"
+      players: '1-5 players',
+      duration: '40-70 min'
     }
   ]
 

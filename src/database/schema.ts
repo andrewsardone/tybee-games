@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer, blob, index } from 'drizzle-orm/sqlite-core'
+import { sqliteTable, text, integer, index } from 'drizzle-orm/sqlite-core'
 import { sql } from 'drizzle-orm'
 
 // Games catalog (master game information)
