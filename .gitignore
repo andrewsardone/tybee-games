@@ -106,3 +106,6 @@ Thumbs.db
 
 # TypeScript
 *.d.ts.map
+
+# public static assets which are distributed at build time
+public/static/dist/

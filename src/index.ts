@@ -109,7 +109,7 @@ app.get('/', async (c) => {
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Tybee Games</title>
-      <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+      <script src="/static/dist/htmx.min.js"></script>
       <style>
         body {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;

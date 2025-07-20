@@ -4,7 +4,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "wrangler dev",
-    "build": "tsc",
+    "build": "tsc && npm run copy-static",
+    "copy-static": "mkdir -p public/static/dist && cp node_modules/htmx.org/dist/htmx.min.js public/static/dist/",
     "deploy": "wrangler deploy",
     "test": "echo \"No tests specified yet\"",
     "prepare": "husky",
@@ -26,9 +27,11 @@
   "description": "",
   "type": "module",
   "dependencies": {
-    "@hono/node-server": "^1.17.0",
+    "@hono/node-server": "^1.17.1",
     "drizzle-orm": "^0.44.3",
-    "hono": "^4.8.5"
+    "hono": "^4.8.5",
+    "htmx.org": "^2.0.6",
+    "typed-htmx": "^0.3.1"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250719.0",
