@@ -54,6 +54,7 @@ export default [
       'dist/**',
       'build/**',
       '.wrangler/**',
+      'public/**', // Third-party assets
       'src/database/migrations/**', // Generated files
     ],
   },
