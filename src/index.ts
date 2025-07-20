@@ -1,6 +1,17 @@
 import { Hono } from 'hono';
+import { createDatabase } from './database/connection';
+import {
+  getAllGamesWithAvailability,
+  isGameAvailable,
+  formatPlayerCount,
+  formatDuration,
+} from './services/games';
 
-const app = new Hono();
+type Bindings = {
+  DB: D1Database;
+};
+
+const app = new Hono<{ Bindings: Bindings }>();
 
 app.get('/', (c) => {
   return c.html(`
@@ -87,7 +98,7 @@ app.get('/', (c) => {
     <body>
       <div class="container">
         <h1>Tybee Games Collection</h1>
-        <div hx-get="/games" hx-trigger="load" hx-target="#games-container">
+        <div hx-get="/partials/games" hx-trigger="load" hx-target="#games-container">
           <div id="games-container">
             Loading games...
           </div>
@@ -98,60 +109,42 @@ app.get('/', (c) => {
   `);
 });
 
-app.get('/games', (c) => {
-  const games = [
-    {
-      id: 1,
-      title: 'Settlers of Catan',
-      description: 'A strategy game of trading, building, and settling',
-      available: true,
-      players: '3-4 players',
-      duration: '60-90 min',
-    },
-    {
-      id: 2,
-      title: 'Ticket to Ride',
-      description: 'A railway-themed board game about connecting cities',
-      available: false,
-      players: '2-5 players',
-      duration: '30-60 min',
-    },
-    {
-      id: 3,
-      title: 'Azul',
-      description: 'A tile-placement game inspired by Portuguese azulejos',
-      available: true,
-      players: '2-4 players',
-      duration: '30-45 min',
-    },
-    {
-      id: 4,
-      title: 'Wingspan',
-      description: 'A beautiful engine-building game about birds',
-      available: true,
-      players: '1-5 players',
-      duration: '40-70 min',
-    },
-  ];
+// HTMX partial route for dynamic game loading
+app.get('/partials/games', async (c) => {
+  try {
+    const db = createDatabase(c.env.DB);
+    const games = await getAllGamesWithAvailability(db);
 
-  const gamesHtml = games
-    .map(
-      (game) => `
-    <div class="game-card">
-      <div class="game-title">${game.title}</div>
-      <div class="game-description">${game.description}</div>
-      <div style="margin-top: 12px; font-size: 12px; color: #86868b;">
-        ${game.players} • ${game.duration}
+    const gamesHtml = games
+      .map(
+        (game) => `
+      <div class="game-card" id="game-${game.id}">
+        <div class="game-title">${game.name}</div>
+        <div class="game-description">${game.description || ''}</div>
+        <div style="margin-top: 12px; font-size: 12px; color: #86868b;">
+          ${formatPlayerCount(game.minPlayers, game.maxPlayers)} • ${formatDuration(game.minDuration, game.maxDuration)}
+        </div>
+        <span class="status ${isGameAvailable(game) ? 'available' : 'borrowed'}">
+          ${isGameAvailable(game) ? `Available (${game.availableCopies} copies)` : 'Currently Borrowed'}
+        </span>
       </div>
-      <span class="status ${game.available ? 'available' : 'borrowed'}">
-        ${game.available ? 'Available' : 'Currently Borrowed'}
-      </span>
-    </div>
-  `
-    )
-    .join('');
+    `
+      )
+      .join('');
 
-  return c.html(`<div class="games-grid">${gamesHtml}</div>`);
+    return c.html(`<div class="games-grid">${gamesHtml}</div>`);
+  } catch (error) {
+    console.error('Error loading games:', error);
+    return c.html(
+      `<div class="error">Failed to load games. Please try again.</div>`
+    );
+  }
+});
+
+// Keep the original /games route for direct access
+app.get('/games', async (c) => {
+  // Redirect to home page for now, or could return the full page
+  return c.redirect('/');
 });
 
 export default app;
