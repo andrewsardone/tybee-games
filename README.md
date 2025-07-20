@@ -56,7 +56,7 @@ tybee-games/
 │   └── index.ts          # Main application entry point
 ├── package.json          # Project dependencies and scripts
 ├── tsconfig.json         # TypeScript configuration
-├── wrangler.toml         # Cloudflare Workers configuration
+├── wrangler.jsonc        # Cloudflare Workers configuration
 └── README.md            # This file
 ```
 
@@ -122,11 +122,11 @@ npm run deploy
 
 ### Environment Configuration
 
-Update `wrangler.toml` for your specific deployment needs:
+Update `wrangler.jsonc` for your specific deployment needs:
 
 - Change the `name` field for your worker name
 - Adjust `compatibility_date` if needed
-- Add environment variables in the `[vars]` section
+- Add environment variables in the `vars` section
 
 ## Contributing
 
