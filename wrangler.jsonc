@@ -8,9 +8,21 @@
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "prod-d1-pool-turtle-tybee-games-atlas",
-      "database_id": "a6483d3d-691b-46f8-ada8-6cdaf3383647",
+      "database_name": "local-d1-pool-turtle-tybee-games-atlas",
+      "database_id": "n/a",
       "migrations_dir": "src/database/migrations"
     }
-  ]
+  ],
+  "env": {
+    "prod": {
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "prod-d1-pool-turtle-tybee-games-atlas",
+          "database_id": "a6483d3d-691b-46f8-ada8-6cdaf3383647",
+          "migrations_dir": "src/database/migrations"
+        }
+      ]
+    }
+  }
 }
