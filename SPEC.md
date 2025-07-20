@@ -177,11 +177,13 @@ GET  /admin/checkouts     # View active checkouts
 GET  /admin/analytics     # Usage statistics
 ```
 
-**API Endpoints (JSON responses for HTMX)**
+**HTMX Partial Routes (HTML fragment responses)**
 ```
-GET  /api/games           # JSON game data with filters
-GET  /api/recommend       # JSON recommendations
-GET  /api/availability/:gameId  # Real-time availability
+GET  /partials/games           # HTML game cards with filters applied
+GET  /partials/recommend       # HTML recommendation results
+GET  /partials/availability/:gameId  # HTML availability status update
+GET  /partials/game-card/:id   # HTML for individual game card
+GET  /partials/checkout-form/:gameId  # HTML checkout form
 ```
 
 ## User Interface Specification
@@ -215,7 +217,9 @@ GET  /api/availability/:gameId  # Real-time availability
   - Strategy vs Luck preference slider (1-5 scale)
   - Theme checkboxes (strategy, party, cooperative, etc.)
 - Instant results below form using HTMX
-- Clear explanations for why games were recommended
+  - Form submits to `/partials/recommend` and returns HTML game cards
+  - Results replace content in target div without page reload
+- Clear explanations for why games were recommended (included in HTML response)
 
 ### Interaction Patterns
 
@@ -275,8 +279,12 @@ GET  /api/availability/:gameId  # Real-time availability
 
 **Real-time Features**
 - **Server-Sent Events (SSE)** for real-time availability updates
-- WebSocket fallback for older browsers if needed
+  - Send HTML fragments for HTMX to swap into availability indicators
+  - Trigger HTMX requests to refresh specific game cards when status changes
+- **HTMX Polling** as fallback for real-time updates
+  - Periodic refresh of game availability using `hx-trigger="every 30s"`
 - Live status updates when games are checked out/returned
+  - HTML partial updates for availability badges and checkout status
 
 ### Data Storage Schema
 
