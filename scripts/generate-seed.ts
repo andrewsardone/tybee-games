@@ -1,0 +1,314 @@
+#!/usr/bin/env tsx
+
+import fs from 'fs';
+import path from 'path';
+import { getTableColumns } from 'drizzle-orm';
+import {
+  games,
+  gameCopies,
+  staffUsers,
+  type NewGame,
+  type NewGameCopy,
+  type NewStaffUser,
+} from '../src/database/schema.js';
+
+// Type-safe seed data using Drizzle's inferred types
+const sampleGamesData: NewGame[] = [
+  {
+    id: 'settlers-of-catan',
+    name: 'Settlers of Catan',
+    description: 'A strategy game of trading, building, and settling',
+    publisher: 'Catan Studio',
+    year: 1995,
+    minPlayers: 3,
+    maxPlayers: 4,
+    minDuration: 60,
+    maxDuration: 90,
+    complexityLevel: 3,
+    strategyLuckRating: 4,
+    themes: JSON.stringify(['strategy', 'trading', 'building']),
+    isActive: true,
+  },
+  {
+    id: 'ticket-to-ride',
+    name: 'Ticket to Ride',
+    description: 'A railway-themed board game about connecting cities',
+    publisher: 'Days of Wonder',
+    year: 2004,
+    minPlayers: 2,
+    maxPlayers: 5,
+    minDuration: 30,
+    maxDuration: 60,
+    complexityLevel: 2,
+    strategyLuckRating: 3,
+    themes: JSON.stringify(['strategy', 'trains', 'collection']),
+    isActive: true,
+  },
+  {
+    id: 'azul',
+    name: 'Azul',
+    description: 'A tile-placement game inspired by Portuguese azulejos',
+    publisher: 'Plan B Games',
+    year: 2017,
+    minPlayers: 2,
+    maxPlayers: 4,
+    minDuration: 30,
+    maxDuration: 45,
+    complexityLevel: 2,
+    strategyLuckRating: 4,
+    themes: JSON.stringify(['abstract', 'tile-placement', 'pattern-building']),
+    isActive: true,
+  },
+  {
+    id: 'wingspan',
+    name: 'Wingspan',
+    description: 'A beautiful engine-building game about birds',
+    publisher: 'Stonemaier Games',
+    year: 2019,
+    minPlayers: 1,
+    maxPlayers: 5,
+    minDuration: 40,
+    maxDuration: 70,
+    complexityLevel: 3,
+    strategyLuckRating: 3,
+    themes: JSON.stringify(['engine-building', 'animals', 'cards']),
+    isActive: true,
+  },
+  {
+    id: 'codenames',
+    name: 'Codenames',
+    description: 'A word-based party game of clever clues and deduction',
+    publisher: 'Czech Games Edition',
+    year: 2015,
+    minPlayers: 4,
+    maxPlayers: 8,
+    minDuration: 15,
+    maxDuration: 30,
+    complexityLevel: 1,
+    strategyLuckRating: 2,
+    themes: JSON.stringify(['party', 'word-game', 'deduction']),
+    isActive: true,
+  },
+  {
+    id: 'splendor',
+    name: 'Splendor',
+    description:
+      'A fast-paced and addictive game of chip-collecting and card development',
+    publisher: 'Space Cowboys',
+    year: 2014,
+    minPlayers: 2,
+    maxPlayers: 4,
+    minDuration: 30,
+    maxDuration: 30,
+    complexityLevel: 2,
+    strategyLuckRating: 4,
+    themes: JSON.stringify([
+      'engine-building',
+      'set-collection',
+      'renaissance',
+    ]),
+    isActive: true,
+  },
+];
+
+// Type-safe game copies data
+const gameCopiesData: NewGameCopy[] = [
+  // Settlers of Catan - 2 copies
+  {
+    id: 'settlers-copy-1',
+    gameId: 'settlers-of-catan',
+    copyNumber: 1,
+    location: 'Shelf A-1',
+    status: 'available',
+    condition: 'excellent',
+    totalCheckouts: 0,
+  },
+  {
+    id: 'settlers-copy-2',
+    gameId: 'settlers-of-catan',
+    copyNumber: 2,
+    location: 'Shelf A-1',
+    status: 'available',
+    condition: 'excellent',
+    totalCheckouts: 0,
+  },
+
+  // Ticket to Ride - 2 copies
+  {
+    id: 'ticket-copy-1',
+    gameId: 'ticket-to-ride',
+    copyNumber: 1,
+    location: 'Shelf A-2',
+    status: 'available',
+    condition: 'excellent',
+    totalCheckouts: 0,
+  },
+  {
+    id: 'ticket-copy-2',
+    gameId: 'ticket-to-ride',
+    copyNumber: 2,
+    location: 'Shelf A-2',
+    status: 'available',
+    condition: 'excellent',
+    totalCheckouts: 0,
+  },
+
+  // Azul - 1 copy
+  {
+    id: 'azul-copy-1',
+    gameId: 'azul',
+    copyNumber: 1,
+    location: 'Shelf B-1',
+    status: 'available',
+    condition: 'excellent',
+    totalCheckouts: 0,
+  },
+
+  // Wingspan - 1 copy
+  {
+    id: 'wingspan-copy-1',
+    gameId: 'wingspan',
+    copyNumber: 1,
+    location: 'Shelf B-2',
+    status: 'available',
+    condition: 'excellent',
+    totalCheckouts: 0,
+  },
+
+  // Codenames - 3 copies (popular party game)
+  {
+    id: 'codenames-copy-1',
+    gameId: 'codenames',
+    copyNumber: 1,
+    location: 'Shelf C-1',
+    status: 'available',
+    condition: 'excellent',
+    totalCheckouts: 0,
+  },
+  {
+    id: 'codenames-copy-2',
+    gameId: 'codenames',
+    copyNumber: 2,
+    location: 'Shelf C-1',
+    status: 'available',
+    condition: 'excellent',
+    totalCheckouts: 0,
+  },
+  {
+    id: 'codenames-copy-3',
+    gameId: 'codenames',
+    copyNumber: 3,
+    location: 'Shelf C-1',
+    status: 'available',
+    condition: 'excellent',
+    totalCheckouts: 0,
+  },
+
+  // Splendor - 1 copy
+  {
+    id: 'splendor-copy-1',
+    gameId: 'splendor',
+    copyNumber: 1,
+    location: 'Shelf B-3',
+    status: 'available',
+    condition: 'excellent',
+    totalCheckouts: 0,
+  },
+];
+
+// Type-safe staff users data
+const sampleStaffData: NewStaffUser[] = [
+  {
+    id: 'staff-1',
+    googleId: 'sample-google-id',
+    email: 'staff@poolturtle.com',
+    name: 'Sample Staff Member',
+    role: 'admin',
+    isActive: true,
+  },
+];
+
+// Helper functions for type-safe SQL generation
+function escapeSQL(value: any): string {
+  if (value === null || value === undefined) {
+    return 'NULL';
+  }
+  if (typeof value === 'string') {
+    return `'${value.replace(/'/g, "''")}'`;
+  }
+  if (typeof value === 'boolean') {
+    return value ? '1' : '0';
+  }
+  return String(value);
+}
+
+// Type-safe function to generate SQL using Drizzle table definitions
+function generateTypeSafeInsertSQL<T extends Record<string, any>>(
+  table: any,
+  tableName: string,
+  data: T[]
+): string {
+  if (data.length === 0) return '';
+
+  // Get the actual column names from the Drizzle table definition
+  const columns = getTableColumns(table);
+  const columnNames = Object.keys(columns);
+
+  // Map TypeScript property names to database column names
+  const values = data
+    .map((row) => {
+      const mappedValues = columnNames.map((colName) => {
+        // Use the TypeScript property name as key to get the value
+        const value = row[colName];
+        return escapeSQL(value);
+      });
+      return `(${mappedValues.join(', ')})`;
+    })
+    .join(',\n  ');
+
+  const dbColumnNames = columnNames.map((colName) => columns[colName].name);
+  return `INSERT INTO ${tableName} (${dbColumnNames.join(', ')}) VALUES\n  ${values};`;
+}
+
+function generateSeedSQL(): string {
+  const sql = [
+    '-- Generated seed data for Tybee Games',
+    '-- This file is auto-generated from scripts/generate-seed.ts',
+    '-- Do not edit manually - edit the TypeScript source instead',
+    '',
+    '-- Clear existing data (in dependency order)',
+    'DELETE FROM checkout_analytics;',
+    'DELETE FROM checkouts;',
+    'DELETE FROM game_copies;',
+    'DELETE FROM games;',
+    'DELETE FROM staff_users;',
+    '',
+    '-- Insert sample games',
+    generateTypeSafeInsertSQL(games, 'games', sampleGamesData),
+    '',
+    '-- Insert game copies',
+    generateTypeSafeInsertSQL(gameCopies, 'game_copies', gameCopiesData),
+    '',
+    '-- Insert sample staff',
+    generateTypeSafeInsertSQL(staffUsers, 'staff_users', sampleStaffData),
+    '',
+  ];
+
+  return sql.join('\n');
+}
+
+function main() {
+  const seedSQL = generateSeedSQL();
+  const outputPath = path.join(process.cwd(), 'tmp/seed.sql');
+
+  // Write to file
+  fs.writeFileSync(outputPath, seedSQL, 'utf8');
+  console.log(`✅ Generated seed SQL at: ${outputPath}`);
+
+  // Also output to stdout if requested
+  if (process.argv.includes('--stdout')) {
+    console.log('\n' + seedSQL);
+  }
+}
+
+main();
