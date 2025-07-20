@@ -9,12 +9,14 @@
 ### Primary Users
 
 **Customers (Primary Users)**
+
 - Restaurant/bar patrons browsing available games
 - Want to find games suitable for their group size and preferences
 - Need to check out games for play and return them afterward
 - Use tablets provided by the restaurant
 
 **Staff (Administrative Users)**
+
 - Restaurant staff managing game inventory
 - Add new games, update game details, and track availability
 - Monitor game checkout/return status
@@ -64,70 +66,73 @@
 ## Data Models
 
 ### Game Entity
+
 **Master game information (one record per unique game title)**
 
 ```typescript
 interface Game {
-  id: string
-  name: string
-  description: string
-  publisher: string
-  year: number
-  imageUrl?: string
-  
+  id: string;
+  name: string;
+  description: string;
+  publisher: string;
+  year: number;
+  imageUrl?: string;
+
   // Gameplay characteristics
-  minPlayers: number
-  maxPlayers: number
-  minDuration: number // minutes
-  maxDuration: number // minutes
-  complexityLevel: number // 1-5 (1 = easy to learn, 5 = complex)
-  strategyLuckRating: number // 1-5 (1 = mostly luck, 5 = mostly strategy)
-  themes: string[] // e.g., ["strategy", "fantasy", "cooperative"]
-  
+  minPlayers: number;
+  maxPlayers: number;
+  minDuration: number; // minutes
+  maxDuration: number; // minutes
+  complexityLevel: number; // 1-5 (1 = easy to learn, 5 = complex)
+  strategyLuckRating: number; // 1-5 (1 = mostly luck, 5 = mostly strategy)
+  themes: string[]; // e.g., ["strategy", "fantasy", "cooperative"]
+
   // Metadata
-  dateAdded: Date
-  isActive: boolean
+  dateAdded: Date;
+  isActive: boolean;
 }
 ```
 
 ### GameCopy Entity
+
 **Individual physical copies of games (multiple copies per game)**
 
 ```typescript
 interface GameCopy {
-  id: string
-  gameId: string // Reference to Game entity
-  copyNumber: number // Copy 1, Copy 2, etc.
-  
+  id: string;
+  gameId: string; // Reference to Game entity
+  copyNumber: number; // Copy 1, Copy 2, etc.
+
   // Inventory management
-  status: 'available' | 'checked_out' | 'maintenance' | 'missing'
-  condition: 'excellent' | 'good' | 'fair' | 'poor'
-  location: string // "Shelf A-3", "Storage", etc.
-  
+  status: 'available' | 'checked_out' | 'maintenance' | 'missing';
+  condition: 'excellent' | 'good' | 'fair' | 'poor';
+  location: string; // "Shelf A-3", "Storage", etc.
+
   // Checkout tracking
-  currentCheckoutId?: string
-  lastCheckedOut?: Date
-  totalCheckouts: number
-  
+  currentCheckoutId?: string;
+  lastCheckedOut?: Date;
+  totalCheckouts: number;
+
   // Metadata
-  dateAdded: Date
-  notes?: string
+  dateAdded: Date;
+  notes?: string;
 }
 ```
 
 ### Checkout Entity
+
 **Tracking game rentals**
 
 ```typescript
 interface Checkout {
-  id: string
-  gameCopyId: string
-  customerName?: string // Optional for anonymous checkouts
-  checkedOutAt: Date
-  expectedReturnAt?: Date
-  returnedAt?: Date
-  status: 'active' | 'returned' | 'overdue'
-  staffMemberId?: string // Who processed the checkout
+  id: string;
+  gameCopyId: string;
+  customerName?: string; // Optional for anonymous checkouts
+  checkedOutAt: Date;
+  expectedReturnAt?: Date;
+  returnedAt?: Date;
+  status: 'active' | 'returned' | 'overdue';
+  staffMemberId?: string; // Who processed the checkout
 }
 ```
 
@@ -136,12 +141,14 @@ interface Checkout {
 ### Authentication Strategy
 
 **Customer Access (Public Tablets)**
+
 - Single shared username/password known only to staff
 - Staff enters credentials when setting up iPads in restaurant
 - Tablets remain logged in for customer use
 - No individual customer accounts needed
 
 **Staff/Admin Access**
+
 - Google OAuth integration
 - Allowlisted Google accounts for authorized staff
 - Access admin functions from personal devices or staff terminals
@@ -149,6 +156,7 @@ interface Checkout {
 ### Endpoints
 
 **Public Routes (Customer Access)**
+
 ```
 GET  /                     # Main browse page
 GET  /games                # Game listing with filters/search
@@ -161,6 +169,7 @@ POST /return/:checkoutId  # Return a game
 ```
 
 **Protected Routes (Staff Access)**
+
 ```
 GET  /auth/google         # Initiate Google OAuth
 GET  /auth/callback       # OAuth callback
@@ -178,6 +187,7 @@ GET  /admin/analytics     # Usage statistics
 ```
 
 **HTMX Partial Routes (HTML fragment responses)**
+
 ```
 GET  /partials/games           # HTML game cards with filters applied
 GET  /partials/recommend       # HTML recommendation results
@@ -191,12 +201,14 @@ GET  /partials/checkout-form/:gameId  # HTML checkout form
 ### Layout Requirements
 
 **Home Screen Layout**
-- Primary split: "Browse All Games" vs "Get Recommendations" 
+
+- Primary split: "Browse All Games" vs "Get Recommendations"
 - Large, prominent buttons for main actions
 - Secondary section: "Popular Games" carousel/grid (lower priority)
 - Clean, minimal design suitable for quick decision-making
 
 **iPad/Tablet Optimizations**
+
 - Touch targets minimum 44px for easy finger navigation
 - Large, readable fonts (minimum 16px body text)
 - High contrast color schemes for various lighting conditions
@@ -204,12 +216,14 @@ GET  /partials/checkout-form/:gameId  # HTML checkout form
 - Fast loading with skeleton screens for perceived performance
 
 **Game Browsing Interface**
+
 - Grid layout with large game images
 - Clear availability indicators (green/red status badges)
 - Filtering options: player count, duration, complexity, theme
 - Quick view modal for game details without page navigation
 
 **Recommendation Flow**
+
 - Single form with all criteria on one screen:
   - Player count slider/picker
   - Learning time preference (quick/moderate/deep)
@@ -224,12 +238,14 @@ GET  /partials/checkout-form/:gameId  # HTML checkout form
 ### Interaction Patterns
 
 **Touch-First Design**
+
 - Large tap targets for all interactive elements
 - Swipe gestures for browsing game lists
 - Pull-to-refresh for real-time availability updates
 - Haptic feedback for checkout/return actions (if supported)
 
 **Navigation**
+
 - Breadcrumb navigation for deep screens
 - Prominent "Back" buttons
 - Quick access to home from any screen
@@ -238,12 +254,14 @@ GET  /partials/checkout-form/:gameId  # HTML checkout form
 ### Design & Aesthetic Considerations
 
 **Restaurant Integration**
+
 - Themeable color scheme to match restaurant branding
 - Configurable logo/header area
 - Clean, professional appearance suitable for dining environment
 - Easy-to-clean interface design (minimal decorative elements)
 
 **Accessibility**
+
 - High contrast mode for different lighting conditions
 - Large text options for visually impaired users
 - Simple language and clear iconography
@@ -254,16 +272,19 @@ GET  /partials/checkout-form/:gameId  # HTML checkout form
 ### Technology Stack
 
 **Frontend**
+
 - HTMX for dynamic interactions without complex JavaScript
 - Vanilla CSS with mobile-first responsive design
 - Progressive Web App (PWA) capabilities for offline support
 
 **Backend**
+
 - HonoJS web framework running on Cloudflare Workers
 - TypeScript for type safety and better developer experience
 - Server-side rendering with HTMX for dynamic content
 
 **Data Storage**
+
 - **Cloudflare D1** (SQLite) for primary database
   - Games catalog, inventory, checkouts, user sessions
   - Suitable for restaurant-scale inventory (50-200 games)
@@ -273,11 +294,13 @@ GET  /partials/checkout-form/:gameId  # HTML checkout form
   - Cached recommendation algorithms
 
 **Asset Management**
+
 - **Cloudflare Images** for game photos and thumbnails
 - Automatic optimization and resizing for different screen sizes
 - Staff upload interface in admin panel for game images
 
 **Real-time Features**
+
 - **Server-Sent Events (SSE)** for real-time availability updates
   - Send HTML fragments for HTMX to swap into availability indicators
   - Trigger HTMX requests to refresh specific game cards when status changes
@@ -289,6 +312,7 @@ GET  /partials/checkout-form/:gameId  # HTML checkout form
 ### Data Storage Schema
 
 **D1 Tables**
+
 ```sql
 -- Games catalog
 CREATE TABLE games (
@@ -352,17 +376,20 @@ CREATE TABLE staff_users (
 ### Deployment & Infrastructure
 
 **Cloudflare Workers Deployment**
+
 - Single worker handling all routes and API endpoints
 - Edge deployment for global low latency
 - Automatic scaling based on traffic
 - Built-in DDoS protection and security
 
 **Environment Configuration**
+
 - Production/staging environments via Wrangler
 - Environment variables for API keys and configuration
 - Database migrations managed via D1 CLI tools
 
 **CI/CD Pipeline**
+
 - GitHub Actions for automated deployment
 - TypeScript compilation and linting checks
 - Automatic database migrations on deployment
@@ -372,12 +399,14 @@ CREATE TABLE staff_users (
 ### Data Protection
 
 **Customer Privacy**
+
 - Require customer name for checkout (accountability and contact if needed)
 - **Automatic data purging**: Customer names deleted immediately upon game return
 - Anonymized checkout logs retained for analytics (no personal identifiers)
 - No long-term storage of personal customer information
 
 **Data Retention Policy**
+
 ```sql
 -- Example of anonymized checkout history for analytics
 CREATE TABLE checkout_analytics (
@@ -391,6 +420,7 @@ CREATE TABLE checkout_analytics (
 ```
 
 **Security Measures**
+
 - HTTPS enforcement on all routes and API endpoints
 - Google OAuth for staff with allowlisted email addresses only
 - Session management with secure cookies and CSRF protection
@@ -399,17 +429,20 @@ CREATE TABLE checkout_analytics (
 ### Access Control
 
 **Customer Tablets (Public Access)**
+
 - Read-only access to game catalog and recommendations
 - Can initiate checkouts but cannot access admin functions
 - Session timeout after 15 minutes of inactivity
 - Automatic return to home screen after checkout completion
 
 **Staff Access Levels**
+
 - **Staff Role**: Manage checkouts, update game status, view current inventory
 - **Admin Role**: Full CRUD on games catalog, user management, analytics access
 - **Manager Role**: All admin functions plus system configuration and allowlist management
 
 **Session Security**
+
 - Auto-logout staff sessions after 2 hours of inactivity
 - Secure session tokens with rotation on sensitive operations
 - Device-specific session binding for staff accounts
@@ -417,18 +450,21 @@ CREATE TABLE checkout_analytics (
 ## Performance Requirements
 
 ### Load Times
+
 - Initial page load: < 2 seconds on restaurant WiFi
 - Game browsing/filtering: < 500ms response time
 - Checkout process: < 1 second end-to-end
 - Real-time updates: < 100ms latency for availability changes
 
 ### Offline Capability
+
 - **PWA with Service Worker** for basic offline functionality
 - Cache game catalog for browsing when connection is poor
 - Queue checkout/return actions when offline, sync when reconnected
 - Offline-first design for reliability in restaurant environment
 
 ### Scalability
+
 - Support for multiple restaurant locations (multi-tenant architecture)
 - Handle concurrent usage from 10+ tablets simultaneously
 - Database queries optimized for < 50ms response times
@@ -437,6 +473,7 @@ CREATE TABLE checkout_analytics (
 ## Future Enhancements
 
 ### Phase 2 Features (Next 3-6 months)
+
 - **Advanced Analytics Dashboard**
   - Game popularity metrics and trends
   - Peak usage times and patterns
@@ -455,6 +492,7 @@ CREATE TABLE checkout_analytics (
   - Staff-visible feedback for game maintenance
 
 ### Phase 3+ Features (6+ months)
+
 - **Multi-Location Support**
   - Central management for restaurant chains
   - Location-specific inventory and branding
@@ -478,6 +516,7 @@ CREATE TABLE checkout_analytics (
   - QR code scanning for quick game identification
 
 ### Long-term Vision
+
 - **AI-Powered Experience**
   - Computer vision for automatic game return detection
   - Predictive inventory management

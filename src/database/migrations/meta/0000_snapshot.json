@@ -54,16 +54,12 @@
       "indexes": {
         "idx_checkout_analytics_game_id": {
           "name": "idx_checkout_analytics_game_id",
-          "columns": [
-            "game_id"
-          ],
+          "columns": ["game_id"],
           "isUnique": false
         },
         "idx_checkout_analytics_date": {
           "name": "idx_checkout_analytics_date",
-          "columns": [
-            "checkout_date"
-          ],
+          "columns": ["checkout_date"],
           "isUnique": false
         }
       },
@@ -72,12 +68,8 @@
           "name": "checkout_analytics_game_id_games_id_fk",
           "tableFrom": "checkout_analytics",
           "tableTo": "games",
-          "columnsFrom": [
-            "game_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["game_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -159,30 +151,22 @@
       "indexes": {
         "idx_checkouts_game_copy_id": {
           "name": "idx_checkouts_game_copy_id",
-          "columns": [
-            "game_copy_id"
-          ],
+          "columns": ["game_copy_id"],
           "isUnique": false
         },
         "idx_checkouts_status": {
           "name": "idx_checkouts_status",
-          "columns": [
-            "status"
-          ],
+          "columns": ["status"],
           "isUnique": false
         },
         "idx_checkouts_active": {
           "name": "idx_checkouts_active",
-          "columns": [
-            "status"
-          ],
+          "columns": ["status"],
           "isUnique": false
         },
         "idx_checkouts_date": {
           "name": "idx_checkouts_date",
-          "columns": [
-            "checked_out_at"
-          ],
+          "columns": ["checked_out_at"],
           "isUnique": false
         }
       },
@@ -191,12 +175,8 @@
           "name": "checkouts_game_copy_id_game_copies_id_fk",
           "tableFrom": "checkouts",
           "tableTo": "game_copies",
-          "columnsFrom": [
-            "game_copy_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["game_copy_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -204,12 +184,8 @@
           "name": "checkouts_staff_member_id_staff_users_id_fk",
           "tableFrom": "checkouts",
           "tableTo": "staff_users",
-          "columnsFrom": [
-            "staff_member_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["staff_member_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -314,32 +290,22 @@
       "indexes": {
         "idx_game_copies_game_id": {
           "name": "idx_game_copies_game_id",
-          "columns": [
-            "game_id"
-          ],
+          "columns": ["game_id"],
           "isUnique": false
         },
         "idx_game_copies_status": {
           "name": "idx_game_copies_status",
-          "columns": [
-            "status"
-          ],
+          "columns": ["status"],
           "isUnique": false
         },
         "idx_game_copies_available": {
           "name": "idx_game_copies_available",
-          "columns": [
-            "game_id",
-            "status"
-          ],
+          "columns": ["game_id", "status"],
           "isUnique": false
         },
         "idx_game_copies_unique": {
           "name": "idx_game_copies_unique",
-          "columns": [
-            "game_id",
-            "copy_number"
-          ],
+          "columns": ["game_id", "copy_number"],
           "isUnique": false
         }
       },
@@ -348,12 +314,8 @@
           "name": "game_copies_game_id_games_id_fk",
           "tableFrom": "game_copies",
           "tableTo": "games",
-          "columnsFrom": [
-            "game_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["game_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -484,39 +446,27 @@
       "indexes": {
         "idx_games_active": {
           "name": "idx_games_active",
-          "columns": [
-            "is_active"
-          ],
+          "columns": ["is_active"],
           "isUnique": false
         },
         "idx_games_players": {
           "name": "idx_games_players",
-          "columns": [
-            "min_players",
-            "max_players"
-          ],
+          "columns": ["min_players", "max_players"],
           "isUnique": false
         },
         "idx_games_duration": {
           "name": "idx_games_duration",
-          "columns": [
-            "min_duration",
-            "max_duration"
-          ],
+          "columns": ["min_duration", "max_duration"],
           "isUnique": false
         },
         "idx_games_complexity": {
           "name": "idx_games_complexity",
-          "columns": [
-            "complexity_level"
-          ],
+          "columns": ["complexity_level"],
           "isUnique": false
         },
         "idx_games_strategy_luck": {
           "name": "idx_games_strategy_luck",
-          "columns": [
-            "strategy_luck_rating"
-          ],
+          "columns": ["strategy_luck_rating"],
           "isUnique": false
         }
       },
@@ -599,37 +549,27 @@
       "indexes": {
         "staff_users_google_id_unique": {
           "name": "staff_users_google_id_unique",
-          "columns": [
-            "google_id"
-          ],
+          "columns": ["google_id"],
           "isUnique": true
         },
         "staff_users_email_unique": {
           "name": "staff_users_email_unique",
-          "columns": [
-            "email"
-          ],
+          "columns": ["email"],
           "isUnique": true
         },
         "idx_staff_users_email": {
           "name": "idx_staff_users_email",
-          "columns": [
-            "email"
-          ],
+          "columns": ["email"],
           "isUnique": false
         },
         "idx_staff_users_google_id": {
           "name": "idx_staff_users_google_id",
-          "columns": [
-            "google_id"
-          ],
+          "columns": ["google_id"],
           "isUnique": false
         },
         "idx_staff_users_active": {
           "name": "idx_staff_users_active",
-          "columns": [
-            "is_active"
-          ],
+          "columns": ["is_active"],
           "isUnique": false
         }
       },

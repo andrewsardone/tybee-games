@@ -21,17 +21,20 @@ A web application for browsing and managing board games available for borrowing 
 ### Installation
 
 1. Clone the repository:
+
 ```bash
 git clone <repository-url>
 cd tybee-games
 ```
 
 2. Install dependencies:
+
 ```bash
 npm install
 ```
 
 3. Start the development server:
+
 ```bash
 npm run dev
 ```
@@ -106,11 +109,13 @@ The application uses a clean, Apple-inspired design suitable for restaurant envi
 ### Cloudflare Workers
 
 1. Install Wrangler CLI (included in dev dependencies):
+
 ```bash
 npx wrangler login
 ```
 
 2. Deploy to Cloudflare:
+
 ```bash
 npm run deploy
 ```
@@ -134,6 +139,7 @@ Update `wrangler.toml` for your specific deployment needs:
 ### Commit Message Format
 
 This project enforces Conventional Commits specification. Valid commit types:
+
 - `feat:` - New features
 - `fix:` - Bug fixes
 - `docs:` - Documentation changes

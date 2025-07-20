@@ -1,6 +1,6 @@
-import { Hono } from 'hono'
+import { Hono } from 'hono';
 
-const app = new Hono()
+const app = new Hono();
 
 app.get('/', (c) => {
   return c.html(`
@@ -95,8 +95,8 @@ app.get('/', (c) => {
       </div>
     </body>
     </html>
-  `)
-})
+  `);
+});
 
 app.get('/games', (c) => {
   const games = [
@@ -106,7 +106,7 @@ app.get('/games', (c) => {
       description: 'A strategy game of trading, building, and settling',
       available: true,
       players: '3-4 players',
-      duration: '60-90 min'
+      duration: '60-90 min',
     },
     {
       id: 2,
@@ -114,7 +114,7 @@ app.get('/games', (c) => {
       description: 'A railway-themed board game about connecting cities',
       available: false,
       players: '2-5 players',
-      duration: '30-60 min'
+      duration: '30-60 min',
     },
     {
       id: 3,
@@ -122,7 +122,7 @@ app.get('/games', (c) => {
       description: 'A tile-placement game inspired by Portuguese azulejos',
       available: true,
       players: '2-4 players',
-      duration: '30-45 min'
+      duration: '30-45 min',
     },
     {
       id: 4,
@@ -130,11 +130,13 @@ app.get('/games', (c) => {
       description: 'A beautiful engine-building game about birds',
       available: true,
       players: '1-5 players',
-      duration: '40-70 min'
-    }
-  ]
+      duration: '40-70 min',
+    },
+  ];
 
-  const gamesHtml = games.map(game => `
+  const gamesHtml = games
+    .map(
+      (game) => `
     <div class="game-card">
       <div class="game-title">${game.title}</div>
       <div class="game-description">${game.description}</div>
@@ -145,9 +147,11 @@ app.get('/games', (c) => {
         ${game.available ? 'Available' : 'Currently Borrowed'}
       </span>
     </div>
-  `).join('')
+  `
+    )
+    .join('');
 
-  return c.html(`<div class="games-grid">${gamesHtml}</div>`)
-})
+  return c.html(`<div class="games-grid">${gamesHtml}</div>`);
+});
 
-export default app
+export default app;

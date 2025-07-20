@@ -1,4 +1,4 @@
-import { defineConfig } from 'drizzle-kit'
+import { defineConfig } from 'drizzle-kit';
 
 export default defineConfig({
   schema: './src/database/schema.ts',
@@ -10,4 +10,4 @@ export default defineConfig({
     accountId: process.env.CLOUDFLARE_ACCOUNT_ID!,
     token: process.env.CLOUDFLARE_API_TOKEN!,
   },
-})
+});
