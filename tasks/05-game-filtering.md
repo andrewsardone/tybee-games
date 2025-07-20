@@ -1,8 +1,8 @@
 # Task 05: Implement Game Filtering and Search
 
-**Status:** ⏳ PENDING  
+**Status:** ✅ COMPLETED  
 **Priority:** Medium  
-**Dependencies:** Task 04 (Game Browsing)
+**Dependencies:** Task 04 (Game Browsing) - ✅ Complete
 
 ## Description
 
@@ -103,13 +103,40 @@ ORDER BY available_copies DESC, g.name
 
 ## Acceptance Criteria
 
-- [ ] Filter by player count works correctly
-- [ ] Duration filtering shows appropriate games
-- [ ] Text search finds games by name
-- [ ] Filters combine properly (AND logic)
-- [ ] Real-time updates without page reload
-- [ ] Filter state persists during session
-- [ ] Results show immediately as user types/selects
+- [x] Filter by player count works correctly
+- [x] Duration filtering shows appropriate games
+- [x] Text search finds games by name and description
+- [x] Filters combine properly (AND logic)
+- [x] Real-time updates without page reload
+- [x] Filter state persists via URL parameters
+- [x] Results show immediately as user types/selects
+
+## Implementation Summary
+
+**Completed:** All game filtering functionality with URL-driven state management.
+
+**Key Features Delivered:**
+
+- URL-based application state with shareable filtered views
+- Real-time filtering with 300ms input delay for optimal UX
+- Multiple filter types: player count, duration, complexity, text search
+- Proper HTMX pattern using single route for full page and partials
+- SQLite-compatible case-insensitive search using LOWER() and LIKE
+- Form pre-population from URL parameters on page load
+- Results count display with filter status indication
+
+**Technical Implementation:**
+
+- Single `/` route detects HTMX requests via HX-Request header
+- Dynamic Drizzle ORM queries with conditional WHERE clauses
+- URL parameters drive both form state and database filtering
+- `hx-push-url="true"` maintains clean URLs on main route
+- Clear filters functionality resets to base URL
+
+**Files Modified:**
+
+- `src/index.ts` - Added filtering UI, URL handling, and HTMX patterns
+- `src/services/games.ts` - Added GameFilters interface and getGamesWithFilters function
 
 ## Enhancement Ideas for Later
 
