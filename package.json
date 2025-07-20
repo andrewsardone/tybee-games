@@ -1,0 +1,29 @@
+{
+  "name": "tybee-games",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "wrangler dev",
+    "build": "tsc",
+    "deploy": "wrangler deploy",
+    "test": "echo \"No tests specified yet\"",
+    "prepare": "husky"
+  },
+  "keywords": [],
+  "author": "Andrew Sardone <andrew@andrewsardone.com>",
+  "license": "MIT",
+  "description": "",
+  "dependencies": {
+    "@hono/node-server": "^1.17.0",
+    "hono": "^4.8.5"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250719.0",
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
+    "@types/node": "^24.0.15",
+    "husky": "^9.1.7",
+    "typescript": "^5.8.3",
+    "wrangler": "^4.25.0"
+  }
+}

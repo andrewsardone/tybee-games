@@ -1,0 +1,153 @@
+# Tybee Games
+
+A web application for browsing and managing board games available for borrowing at [The Pool Turtle] a restaurant bar. Optimized for iPad tablets and designed for easy use in a hospitality setting.
+
+## Tech Stack
+
+- **Framework**: [HonoJS](https://hono.dev/) - Lightweight web framework
+- **Runtime**: Cloudflare Workers - Edge computing platform
+- **Frontend**: HTMX for dynamic interactions
+- **Language**: TypeScript
+- **Styling**: Vanilla CSS with mobile-first design
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js (v18 or higher)
+- npm or yarn
+- Cloudflare account (for deployment)
+
+### Installation
+
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd tybee-games
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Start the development server:
+```bash
+npm run dev
+```
+
+The application will be available at `http://localhost:8787`
+
+## Available Scripts
+
+- `npm run dev` - Start development server with hot reload
+- `npm run build` - Build the TypeScript code
+- `npm run deploy` - Deploy to Cloudflare Workers
+- `npm test` - Run tests (not yet implemented)
+
+## Project Structure
+
+```
+tybee-games/
+├── src/
+│   └── index.ts          # Main application entry point
+├── package.json          # Project dependencies and scripts
+├── tsconfig.json         # TypeScript configuration
+├── wrangler.toml         # Cloudflare Workers configuration
+└── README.md            # This file
+```
+
+## Features
+
+### Current Features
+
+- **Game Browsing**: Display available board games in a grid layout
+- **Availability Status**: Shows if games are available or currently borrowed
+- **Game Details**: Player count and estimated duration for each game
+- **Responsive Design**: Optimized for iPad tablets and mobile devices
+- **Real-time Updates**: Uses HTMX for dynamic content loading
+
+### Planned Features
+
+- Game suggestion system
+- Search and filtering
+- Reservation system
+- Game reviews and ratings
+- Admin panel for game management
+
+## Development
+
+### Architecture
+
+The application follows a simple server-side rendered approach:
+
+- **Backend**: HonoJS handles routing and serves HTML responses
+- **Frontend**: HTMX provides dynamic interactions without complex JavaScript
+- **Styling**: Mobile-first CSS with iPad optimizations
+- **Data**: Currently uses in-memory data (future: database integration)
+
+### Key Routes
+
+- `GET /` - Main application page
+- `GET /games` - Returns games list as HTML fragment
+
+### Styling Guidelines
+
+The application uses a clean, Apple-inspired design suitable for restaurant environments:
+
+- Sans-serif fonts for readability
+- Card-based layout for touch interaction
+- Subtle shadows and hover effects
+- Color-coded availability status
+- Large touch targets for tablet use
+
+## Deployment
+
+### Cloudflare Workers
+
+1. Install Wrangler CLI (included in dev dependencies):
+```bash
+npx wrangler login
+```
+
+2. Deploy to Cloudflare:
+```bash
+npm run deploy
+```
+
+### Environment Configuration
+
+Update `wrangler.toml` for your specific deployment needs:
+
+- Change the `name` field for your worker name
+- Adjust `compatibility_date` if needed
+- Add environment variables in the `[vars]` section
+
+## Contributing
+
+1. Follow the existing code style and patterns
+2. Ensure TypeScript compilation passes: `npm run build`
+3. Use [Conventional Commits](https://www.conventionalcommits.org/) for commit messages
+4. Test on mobile devices and tablets
+5. Consider accessibility for restaurant/bar lighting conditions
+
+### Commit Message Format
+
+This project enforces Conventional Commits specification. Valid commit types:
+- `feat:` - New features
+- `fix:` - Bug fixes
+- `docs:` - Documentation changes
+- `style:` - Code style changes (formatting, etc.)
+- `refactor:` - Code refactoring
+- `test:` - Adding or updating tests
+- `chore:` - Maintenance tasks
+- `ci:` - CI/CD changes
+- `build:` - Build system changes
+- `perf:` - Performance improvements
+- `revert:` - Reverting previous commits
+
+## License
+
+MIT
+
+[The Pool Turtle]: https://www.thepoolturtle.com

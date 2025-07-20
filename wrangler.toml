@@ -1,0 +1,6 @@
+name = "tybee-games"
+main = "src/index.ts"
+compatibility_date = "2024-07-01"
+
+[build]
+command = "npm run build"
