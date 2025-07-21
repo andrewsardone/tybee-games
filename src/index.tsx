@@ -1,4 +1,4 @@
-import { Hono } from 'hono';
+import { Hono, type Context } from 'hono';
 import { createDatabase } from './database/connection';
 import { getGamesWithFilters, type GameFilters } from './services/games';
 import Layout from './components/Layout';
@@ -11,14 +11,41 @@ type Bindings = {
   DB: D1Database;
 };
 
+interface QueryParams {
+  players: string;
+  duration: string;
+  complexity: string;
+  search: string;
+}
+
+// Helper function to extract query parameters
+const getQueryParams = (c: Context<{ Bindings: Bindings }>): QueryParams => {
+  return {
+    players: c.req.query('players') || '',
+    duration: c.req.query('duration') || '',
+    complexity: c.req.query('complexity') || '',
+    search: c.req.query('search') || '',
+  };
+};
+
+// Helper function to build query string from parameters
+const buildQueryString = (params: QueryParams): string => {
+  // Filter out empty values and create URLSearchParams
+  const filteredParams = Object.fromEntries(
+    Object.entries(params).filter(([_, value]) => value !== '')
+  );
+
+  const searchParams = new URLSearchParams(filteredParams);
+  const queryString = searchParams.toString();
+
+  return queryString ? `?${queryString}` : '';
+};
+
 const app = new Hono<{ Bindings: Bindings }>();
 
 app.get('/', async (c) => {
   // Get URL parameters to pre-populate form
-  const players = c.req.query('players') || '';
-  const duration = c.req.query('duration') || '';
-  const complexity = c.req.query('complexity') || '';
-  const search = c.req.query('search') || '';
+  const { players, duration, complexity, search } = getQueryParams(c);
 
   // Check if this is an HTMX request
   const isHtmxRequest = c.req.header('HX-Request') === 'true';
@@ -62,21 +89,8 @@ app.get('/', async (c) => {
     }
   }
 
-  // Helper function to build query string
-  const buildQueryString = (
-    players: string,
-    duration: string,
-    complexity: string,
-    search: string
-  ) => {
-    const params: string[] = [];
-    if (players) params.push(`players=${encodeURIComponent(players)}`);
-    if (duration) params.push(`duration=${encodeURIComponent(duration)}`);
-    if (complexity) params.push(`complexity=${encodeURIComponent(complexity)}`);
-    if (search) params.push(`search=${encodeURIComponent(search)}`);
-    return params.length > 0 ? `?${params.join('&')}` : '';
-  };
-  const queryString = buildQueryString(players, duration, complexity, search);
+  const queryParams = { players, duration, complexity, search };
+  const queryString = buildQueryString(queryParams);
 
   return c.render(
     <Layout>

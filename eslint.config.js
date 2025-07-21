@@ -23,6 +23,8 @@ export default [
         __filename: 'readonly',
         module: 'readonly',
         require: 'readonly',
+        // Web APIs
+        URLSearchParams: 'readonly',
         // Cloudflare Workers globals
         D1Database: 'readonly',
       },
