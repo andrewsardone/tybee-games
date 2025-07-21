@@ -18,10 +18,16 @@ export interface GameWithAvailability extends Game {
   availableCopies: number;
 }
 
+// Duration filter values - single source of truth
+export const DURATION_FILTERS = ['quick', 'medium', 'long'] as const;
+
+// Duration filter type derived from the values
+export type DurationFilter = (typeof DURATION_FILTERS)[number];
+
 // Filtering options interface
 export interface GameFilters {
   players?: number;
-  duration?: 'quick' | 'medium' | 'long';
+  duration?: DurationFilter;
   complexity?: number;
   search?: string;
   availableOnly?: boolean;

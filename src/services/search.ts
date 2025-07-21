@@ -1,5 +1,6 @@
 import type { Context } from 'hono';
-import type { GameFilters } from './games';
+import type { GameFilters, DurationFilter } from './games';
+import { DURATION_FILTERS } from './games';
 
 export interface QueryParams {
   players: string;
@@ -31,6 +32,11 @@ export const buildQueryString = (params: QueryParams): string => {
   return queryString ? `?${queryString}` : '';
 };
 
+// Type predicate to check if a string is a valid DurationFilter
+const isDurationFilter = (value: string): value is DurationFilter => {
+  return DURATION_FILTERS.includes(value as DurationFilter);
+};
+
 // Convert query parameters to GameFilters for database queries
 export const queryParamsToGameFilters = (params: QueryParams): GameFilters => {
   const filters: GameFilters = {};
@@ -39,11 +45,8 @@ export const queryParamsToGameFilters = (params: QueryParams): GameFilters => {
     filters.players = parseInt(params.players, 10);
   }
 
-  if (
-    params.duration &&
-    ['quick', 'medium', 'long'].includes(params.duration)
-  ) {
-    filters.duration = params.duration as 'quick' | 'medium' | 'long';
+  if (params.duration && isDurationFilter(params.duration)) {
+    filters.duration = params.duration;
   }
 
   if (params.complexity) {
