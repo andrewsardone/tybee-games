@@ -25,10 +25,43 @@ const Layout: FC<LayoutProps> = ({ children, title = 'Tybee Games' }) => {
               max-width: 800px;
               margin: 0 auto;
             }
-            h1 {
-              text-align: center;
-              color: #1d1d1f;
+            /* Header styling */
+            .site-header {
+              background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+              border-radius: 16px;
               margin-bottom: 30px;
+              box-shadow: 0 4px 20px rgba(74, 144, 226, 0.3);
+              overflow: hidden;
+            }
+            .header-content {
+              display: flex;
+              align-items: center;
+              padding: 24px 32px;
+              gap: 20px;
+            }
+            .logo {
+              width: 64px;
+              height: 64px;
+              border-radius: 12px;
+              box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+              background: white;
+              padding: 4px;
+            }
+            .header-text {
+              flex: 1;
+            }
+            .header-text h1 {
+              margin: 0 0 4px 0;
+              color: white;
+              font-size: 28px;
+              font-weight: 700;
+              text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            }
+            .tagline {
+              margin: 0;
+              color: rgba(255, 255, 255, 0.9);
+              font-size: 16px;
+              font-weight: 400;
             }
             .games-grid {
               display: grid;
@@ -139,6 +172,24 @@ const Layout: FC<LayoutProps> = ({ children, title = 'Tybee Games' }) => {
               text-align: center;
             }
             
+            /* Mobile optimizations */
+            @media (max-width: 767px) {
+              .header-content {
+                padding: 20px;
+                gap: 16px;
+              }
+              .logo {
+                width: 48px;
+                height: 48px;
+              }
+              .header-text h1 {
+                font-size: 24px;
+              }
+              .tagline {
+                font-size: 14px;
+              }
+            }
+            
             /* iPad optimizations */
             @media (min-width: 768px) {
               body {
@@ -149,6 +200,19 @@ const Layout: FC<LayoutProps> = ({ children, title = 'Tybee Games' }) => {
               }
               .games-grid {
                 grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+              }
+              .header-content {
+                padding: 32px 40px;
+              }
+              .logo {
+                width: 72px;
+                height: 72px;
+              }
+              .header-text h1 {
+                font-size: 32px;
+              }
+              .tagline {
+                font-size: 18px;
               }
             }
           `}

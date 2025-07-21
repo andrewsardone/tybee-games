@@ -18,7 +18,19 @@ const MainPage: FC<MainPageProps> = ({
 }) => {
   return (
     <>
-      <h1>Tybee Games Collection</h1>
+      <header className="site-header">
+        <div className="header-content">
+          <img
+            src="/static/img/pool-turtle-logo.png"
+            alt="Pool Turtle Logo"
+            className="logo"
+          />
+          <div className="header-text">
+            <h1>Tybee Games Collection</h1>
+            <p className="tagline">Your favorite board games await</p>
+          </div>
+        </div>
+      </header>
 
       <FilterForm
         players={players}
