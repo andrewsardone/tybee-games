@@ -6,7 +6,7 @@
     "dev": "wrangler dev",
     "build": "tsc && npm run copy-static",
     "copy-static": "mkdir -p public/static/dist && cp node_modules/htmx.org/dist/htmx.min.js public/static/dist/",
-    "deploy": "wrangler deploy",
+    "deploy": "wrangler deploy --env prod",
     "test": "echo \"No tests specified yet\"",
     "prepare": "husky",
     "db:generate": "drizzle-kit generate",
