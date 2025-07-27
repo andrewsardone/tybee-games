@@ -1,16 +1,7 @@
-import {
-  eq,
-  count,
-  sql,
-  getTableColumns,
-  and,
-  or,
-  gte,
-  lte,
-  like,
-} from 'drizzle-orm';
+import { eq, count, sql } from 'drizzle-orm';
 import type { Database } from '../database/connection';
-import { games, gameCopies, type Game } from '../database/schema';
+import { gameCopies, type Game } from '../database/schema';
+import { GoogleSheetsService, type GoogleSheetsConfig } from './googleSheets';
 
 // Extend the base Game type with availability info
 export interface GameWithAvailability extends Game {
@@ -34,25 +25,30 @@ export interface GameFilters {
 }
 
 export async function getAllGamesWithAvailability(
-  db: Database
+  db: Database,
+  sheetsConfig: GoogleSheetsConfig
 ): Promise<GameWithAvailability[]> {
-  return getGamesWithFilters(db, {});
+  return getGamesWithFilters(db, {}, sheetsConfig);
 }
 
 export async function getGamesWithFilters(
   db: Database,
-  filters: GameFilters
+  filters: GameFilters,
+  sheetsConfig: GoogleSheetsConfig
 ): Promise<GameWithAvailability[]> {
-  // Build where conditions dynamically
-  const conditions = [eq(games.isActive, true)];
+  // Get games from Google Sheets
+  const sheetsService = new GoogleSheetsService(sheetsConfig);
+  const allGames = await sheetsService.getGames();
+
+  // Apply filters to games data
+  let filteredGames = allGames.filter((game) => game.isActive);
 
   // Player count filter
   if (filters.players) {
-    conditions.push(
-      and(
-        lte(games.minPlayers, filters.players),
-        gte(games.maxPlayers, filters.players)
-      )!
+    filteredGames = filteredGames.filter(
+      (game) =>
+        game.minPlayers <= filters.players! &&
+        game.maxPlayers >= filters.players!
     );
   }
 
@@ -60,74 +56,108 @@ export async function getGamesWithFilters(
   if (filters.duration) {
     switch (filters.duration) {
       case 'quick':
-        conditions.push(lte(games.maxDuration, 30));
+        filteredGames = filteredGames.filter((game) => game.maxDuration <= 30);
         break;
       case 'medium':
-        conditions.push(
-          and(gte(games.minDuration, 30), lte(games.maxDuration, 60))!
+        filteredGames = filteredGames.filter(
+          (game) => game.minDuration >= 30 && game.maxDuration <= 60
         );
         break;
       case 'long':
-        conditions.push(gte(games.minDuration, 60));
+        filteredGames = filteredGames.filter((game) => game.minDuration >= 60);
         break;
     }
   }
 
   // Complexity filter
   if (filters.complexity) {
-    conditions.push(eq(games.complexityLevel, filters.complexity));
+    filteredGames = filteredGames.filter(
+      (game) => game.complexityLevel === filters.complexity
+    );
   }
 
-  // Search filter (case-insensitive using LOWER for SQLite)
+  // Search filter (case-insensitive)
   if (filters.search) {
     const searchTerm = filters.search.toLowerCase();
-    conditions.push(
-      or(
-        like(sql`LOWER(${games.name})`, `%${searchTerm}%`),
-        like(sql`LOWER(${games.description})`, `%${searchTerm}%`)
-      )!
+    filteredGames = filteredGames.filter(
+      (game) =>
+        game.name.toLowerCase().includes(searchTerm) ||
+        (game.description &&
+          game.description.toLowerCase().includes(searchTerm))
     );
   }
 
-  const result = await db
-    .select({
-      ...getTableColumns(games),
-      totalCopies: count(gameCopies.id),
-      availableCopies: sql<number>`COUNT(CASE WHEN ${gameCopies.status} = 'available' THEN 1 END)`,
-    })
-    .from(games)
-    .leftJoin(gameCopies, eq(games.id, gameCopies.gameId))
-    .where(and(...conditions))
-    .groupBy(games.id)
-    .orderBy(
-      sql`COUNT(CASE WHEN ${gameCopies.status} = 'available' THEN 1 END) DESC`,
-      games.name
-    );
+  // Get availability info from SQLite for each game
+  const gamesWithAvailability: GameWithAvailability[] = [];
+
+  for (const game of filteredGames) {
+    const copiesResult = await db
+      .select({
+        totalCopies: count(gameCopies.id),
+        availableCopies: sql<number>`COUNT(CASE WHEN ${gameCopies.status} = 'available' THEN 1 END)`,
+      })
+      .from(gameCopies)
+      .where(eq(gameCopies.gameId, game.id));
+
+    const availability = copiesResult[0] || {
+      totalCopies: 0,
+      availableCopies: 0,
+    };
+
+    gamesWithAvailability.push({
+      ...game,
+      totalCopies: availability.totalCopies,
+      availableCopies: availability.availableCopies,
+    });
+  }
 
   // Filter for available only if requested
   if (filters.availableOnly) {
-    return result.filter((game) => game.availableCopies > 0);
+    return gamesWithAvailability.filter((game) => game.availableCopies > 0);
   }
 
-  return result;
+  // Sort by availability then name
+  return gamesWithAvailability.sort((a, b) => {
+    if (a.availableCopies !== b.availableCopies) {
+      return b.availableCopies - a.availableCopies;
+    }
+    return a.name.localeCompare(b.name);
+  });
 }
 
 export async function getGameById(
   db: Database,
-  id: string
+  id: string,
+  sheetsConfig: GoogleSheetsConfig
 ): Promise<GameWithAvailability | null> {
-  const result = await db
+  // Get game from Google Sheets
+  const sheetsService = new GoogleSheetsService(sheetsConfig);
+  const allGames = await sheetsService.getGames();
+  const game = allGames.find((g) => g.id === id);
+
+  if (!game) {
+    return null;
+  }
+
+  // Get availability info from SQLite
+  const copiesResult = await db
     .select({
-      ...getTableColumns(games),
       totalCopies: count(gameCopies.id),
       availableCopies: sql<number>`COUNT(CASE WHEN ${gameCopies.status} = 'available' THEN 1 END)`,
     })
-    .from(games)
-    .leftJoin(gameCopies, eq(games.id, gameCopies.gameId))
-    .where(eq(games.id, id))
-    .groupBy(games.id);
+    .from(gameCopies)
+    .where(eq(gameCopies.gameId, id));
 
-  return result.length > 0 ? result[0] : null;
+  const availability = copiesResult[0] || {
+    totalCopies: 0,
+    availableCopies: 0,
+  };
+
+  return {
+    ...game,
+    totalCopies: availability.totalCopies,
+    availableCopies: availability.availableCopies,
+  };
 }
 
 // Business logic function to check availability

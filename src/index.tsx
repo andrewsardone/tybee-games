@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 import { createDatabase } from './database/connection';
 import { getGamesWithFilters } from './services/games';
+import { getGoogleSheetsConfig } from './services/config';
 import {
   getQueryParams,
   buildQueryString,
@@ -14,6 +15,9 @@ import ErrorMessage from './components/ErrorMessage';
 
 type Bindings = {
   DB: D1Database;
+  GOOGLE_SHEETS_API_KEY: string;
+  GOOGLE_SHEETS_SPREADSHEET_ID: string;
+  GOOGLE_SHEETS_RANGE: string;
 };
 
 const app = new Hono<{ Bindings: Bindings }>();
@@ -33,7 +37,8 @@ app.get('/', async (c) => {
 
       const filters = queryParamsToGameFilters(queryParams);
 
-      const games = await getGamesWithFilters(db, filters);
+      const sheetsConfig = getGoogleSheetsConfig(c.env);
+      const games = await getGamesWithFilters(db, filters, sheetsConfig);
 
       // Return JSX components for HTMX response
       return c.render(

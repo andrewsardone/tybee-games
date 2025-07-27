@@ -25,6 +25,7 @@ export default [
         require: 'readonly',
         // Web APIs
         URLSearchParams: 'readonly',
+        fetch: 'readonly',
         // Cloudflare Workers globals
         D1Database: 'readonly',
       },

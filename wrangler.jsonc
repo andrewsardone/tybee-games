@@ -16,6 +16,9 @@
       "migrations_dir": "src/database/migrations"
     }
   ],
+  "vars": {
+    "GOOGLE_SHEETS_RANGE": "Games"
+  },
   "env": {
     "prod": {
       "d1_databases": [
@@ -25,7 +28,10 @@
           "database_id": "a6483d3d-691b-46f8-ada8-6cdaf3383647",
           "migrations_dir": "src/database/migrations"
         }
-      ]
+      ],
+      "vars": {
+        "GOOGLE_SHEETS_RANGE": "Games"
+      }
     }
   }
 }

@@ -33,7 +33,14 @@ cd tybee-games
 npm install
 ```
 
-3. Start the development server:
+3. Set up environment variables:
+
+```bash
+cp .dev.vars.example .dev.vars
+# Edit .dev.vars with your actual values
+```
+
+4. Start the development server:
 
 ```bash
 npm run dev
@@ -87,7 +94,7 @@ The application follows a simple server-side rendered approach:
 - **Backend**: HonoJS handles routing and serves HTML responses
 - **Frontend**: HTMX provides dynamic interactions without complex JavaScript
 - **Styling**: Mobile-first CSS with iPad optimizations
-- **Data**: Currently uses in-memory data (future: database integration)
+- **Data**: Games data from Google Sheets, other data in SQLite (Cloudflare D1)
 
 ### Key Routes
 
@@ -122,11 +129,44 @@ npm run deploy
 
 ### Environment Configuration
 
+This project uses Wrangler's unified approach for environment variables:
+
+#### Local Development (`.dev.vars`)
+
+For secrets and sensitive data that should not be committed:
+
+```bash
+# .dev.vars
+GOOGLE_SHEETS_API_KEY=your_api_key_here
+GOOGLE_SHEETS_SPREADSHEET_ID=your_spreadsheet_id_here
+```
+
+#### Production Secrets (Cloudflare Dashboard)
+
+Set these as Worker secrets in the Cloudflare dashboard:
+
+- `GOOGLE_SHEETS_API_KEY`
+- `GOOGLE_SHEETS_SPREADSHEET_ID`
+
+#### Non-Secret Configuration (`wrangler.jsonc`)
+
+For non-sensitive configuration that can be committed:
+
+```json
+{
+  "vars": {
+    "GOOGLE_SHEETS_RANGE": "Sheet1!A:Z"
+  }
+}
+```
+
+#### Deployment Configuration
+
 Update `wrangler.jsonc` for your specific deployment needs:
 
 - Change the `name` field for your worker name
 - Adjust `compatibility_date` if needed
-- Add environment variables in the `vars` section
+- Add non-secret environment variables in the `vars` section
 
 ## Contributing
 
