@@ -60,11 +60,16 @@ The application will be available at `http://localhost:8787`
 ```
 tybee-games/
 ├── src/
-│   └── index.ts          # Main application entry point
-├── package.json          # Project dependencies and scripts
-├── tsconfig.json         # TypeScript configuration
-├── wrangler.jsonc        # Cloudflare Workers configuration
-└── README.md            # This file
+│   ├── components/       # React/JSX components
+│   ├── database/         # Database schema and migrations
+│   ├── services/         # Business logic and external integrations
+│   └── index.tsx         # Main application entry point
+├── ARCHITECTURE.md       # Detailed system architecture documentation
+├── SPEC.md              # Technical specification and requirements
+├── package.json         # Project dependencies and scripts
+├── tsconfig.json        # TypeScript configuration
+├── wrangler.jsonc       # Cloudflare Workers configuration
+└── README.md           # This file
 ```
 
 ## Features
@@ -89,12 +94,15 @@ tybee-games/
 
 ### Architecture
 
-The application follows a simple server-side rendered approach:
+The application uses a hybrid data architecture combining Google Sheets and SQLite:
 
 - **Backend**: HonoJS handles routing and serves HTML responses
 - **Frontend**: HTMX provides dynamic interactions without complex JavaScript
 - **Styling**: Mobile-first CSS with iPad optimizations
-- **Data**: Games data from Google Sheets, other data in SQLite (Cloudflare D1)
+- **Data**: Games catalog from Google Sheets, operational data in SQLite (Cloudflare D1)
+- **Sync**: Automated synchronization every 30 minutes via Cloudflare Cron Triggers
+
+For detailed architecture information, see [ARCHITECTURE.md](./ARCHITECTURE.md).
 
 ### Key Routes
 
@@ -155,7 +163,7 @@ For non-sensitive configuration that can be committed:
 ```json
 {
   "vars": {
-    "GOOGLE_SHEETS_RANGE": "Sheet1!A:Z"
+    "GOOGLE_SHEETS_RANGE": "Games!A:Z"
   }
 }
 ```

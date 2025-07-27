@@ -285,8 +285,12 @@ GET  /partials/checkout-form/:gameId  # HTML checkout form
 
 **Data Storage**
 
-- **Cloudflare D1** (SQLite) for primary database
-  - Games catalog, inventory, checkouts, user sessions
+- **Google Sheets** for games catalog (source of truth)
+  - Staff-friendly interface for managing game information
+  - Real-time updates without deployments
+  - Non-technical staff can easily add/edit games
+- **Cloudflare D1** (SQLite) for operational data
+  - Game copies, checkouts, staff users, analytics
   - Suitable for restaurant-scale inventory (50-200 games)
   - Edge deployment for low latency
 - **Cloudflare KV** for configuration and caching

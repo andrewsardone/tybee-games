@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { createDatabase } from './database/connection';
 import { getGamesWithFilters } from './services/games';
 import { getGoogleSheetsConfig } from './services/config';
+import { syncGameCopies, getOutOfSyncGames } from './services/copySync';
 import {
   getQueryParams,
   buildQueryString,
@@ -74,4 +75,107 @@ app.get('/games', async (c) => {
   return c.redirect('/');
 });
 
-export default app;
+// Admin endpoint to sync game copies from Google Sheets
+app.post('/admin/sync-copies', async (c) => {
+  try {
+    const db = createDatabase(c.env.DB);
+    const sheetsConfig = getGoogleSheetsConfig(c.env);
+
+    const results = await syncGameCopies(db, sheetsConfig);
+
+    return c.json({
+      success: true,
+      message: `Synced ${results.length} games`,
+      results,
+    });
+  } catch (error) {
+    console.error('Error syncing copies:', error);
+    return c.json(
+      {
+        success: false,
+        error: 'Failed to sync game copies',
+      },
+      500
+    );
+  }
+});
+
+// Admin endpoint to check which games are out of sync
+app.get('/admin/sync-status', async (c) => {
+  try {
+    const db = createDatabase(c.env.DB);
+    const sheetsConfig = getGoogleSheetsConfig(c.env);
+
+    const outOfSync = await getOutOfSyncGames(db, sheetsConfig);
+
+    return c.json({
+      success: true,
+      outOfSync,
+      totalOutOfSync: outOfSync.length,
+    });
+  } catch (error) {
+    console.error('Error checking sync status:', error);
+    return c.json(
+      {
+        success: false,
+        error: 'Failed to check sync status',
+      },
+      500
+    );
+  }
+});
+
+// Scheduled handler for Cron Triggers
+async function scheduled(
+  controller: any, // ScheduledController from Cloudflare Workers
+  env: any, // Bindings
+  _ctx: any // ExecutionContext
+) {
+  console.log(
+    `Cron trigger fired: ${controller.cron} at ${new Date(controller.scheduledTime)}`
+  );
+
+  try {
+    const db = createDatabase(env.DB);
+    const sheetsConfig = getGoogleSheetsConfig(env);
+
+    // Run the sync
+    const results = await syncGameCopies(db, sheetsConfig);
+
+    // Log results
+    const summary = results.reduce(
+      (acc, result) => {
+        acc[result.action] = (acc[result.action] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>
+    );
+
+    console.log(`Sync completed: ${JSON.stringify(summary)}`);
+
+    // Log any significant changes
+    const significantChanges = results.filter(
+      (r) => Math.abs(r.copiesChanged) > 0
+    );
+    if (significantChanges.length > 0) {
+      console.log(
+        'Significant changes:',
+        significantChanges
+          .map(
+            (c) =>
+              `${c.gameName}: ${c.action} ${Math.abs(c.copiesChanged)} copies`
+          )
+          .join(', ')
+      );
+    }
+  } catch (error) {
+    console.error('Scheduled sync failed:', error);
+    // Don't throw - let the cron continue running
+  }
+}
+
+// Export both the Hono app and scheduled handler
+export default {
+  fetch: app.fetch,
+  scheduled,
+};

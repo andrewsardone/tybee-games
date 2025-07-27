@@ -1,5 +1,10 @@
 import type { Game } from '../database/schema';
 
+// Extend Game type to include totalCopies from sheets
+export interface GameWithCopyCount extends Game {
+  totalCopies?: number;
+}
+
 export interface GoogleSheetsConfig {
   spreadsheetId: string;
   range: string;
@@ -21,7 +26,7 @@ export class GoogleSheetsService {
     }
   }
 
-  async getGames(): Promise<Game[]> {
+  async getGames(): Promise<GameWithCopyCount[]> {
     try {
       const url = `https://sheets.googleapis.com/v4/spreadsheets/${this.config.spreadsheetId}/values/${this.config.range}?key=${this.config.apiKey}`;
 
@@ -45,7 +50,7 @@ export class GoogleSheetsService {
       const dataRows = rows.slice(1);
 
       return dataRows.map((row, index) => {
-        const game: Partial<Game> = {};
+        const game: Partial<GameWithCopyCount> = {};
 
         headers.forEach((header: string, colIndex: number) => {
           const value = row[colIndex] || '';
@@ -104,6 +109,11 @@ export class GoogleSheetsService {
             case 'active':
               game.isActive = value.toLowerCase() === 'true' || value === '1';
               break;
+            case 'total_copies':
+            case 'totalcopies':
+            case 'copies':
+              game.totalCopies = parseInt(value, 10) || 0;
+              break;
           }
         });
 
@@ -125,7 +135,8 @@ export class GoogleSheetsService {
           isActive: game.isActive !== false,
           dateAdded: new Date().toISOString(),
           dateUpdated: new Date().toISOString(),
-        } as Game;
+          totalCopies: game.totalCopies || 0,
+        } as GameWithCopyCount;
       });
     } catch (error) {
       console.error('Error fetching games from Google Sheets:', error);

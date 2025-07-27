@@ -1,52 +1,32 @@
 import { sqliteTable, text, integer, index } from 'drizzle-orm/sqlite-core';
 import { sql } from 'drizzle-orm';
 
-// Games catalog (master game information)
-export const games = sqliteTable(
-  'games',
-  {
-    id: text('id').primaryKey(),
-    name: text('name').notNull(),
-    description: text('description'),
-    publisher: text('publisher'),
-    year: integer('year'),
-    imageUrl: text('image_url'),
-    minPlayers: integer('min_players').notNull(),
-    maxPlayers: integer('max_players').notNull(),
-    minDuration: integer('min_duration').notNull(), // minutes
-    maxDuration: integer('max_duration').notNull(), // minutes
-    complexityLevel: integer('complexity_level').notNull(), // 1-5 (1 = easy, 5 = complex)
-    strategyLuckRating: integer('strategy_luck_rating').notNull(), // 1-5 (1 = luck, 5 = strategy)
-    themes: text('themes'), // JSON array of theme strings
-    isActive: integer('is_active', { mode: 'boolean' }).default(true),
-    dateAdded: text('date_added').default(sql`CURRENT_TIMESTAMP`),
-    dateUpdated: text('date_updated').default(sql`CURRENT_TIMESTAMP`),
-  },
-  (table) => ({
-    activeIdx: index('idx_games_active').on(table.isActive),
-    playersIdx: index('idx_games_players').on(
-      table.minPlayers,
-      table.maxPlayers
-    ),
-    durationIdx: index('idx_games_duration').on(
-      table.minDuration,
-      table.maxDuration
-    ),
-    complexityIdx: index('idx_games_complexity').on(table.complexityLevel),
-    strategyLuckIdx: index('idx_games_strategy_luck').on(
-      table.strategyLuckRating
-    ),
-  })
-);
+// Game interface (data comes from Google Sheets)
+export interface Game {
+  id: string;
+  name: string;
+  description: string | null;
+  publisher: string | null;
+  year: number | null;
+  imageUrl: string | null;
+  minPlayers: number;
+  maxPlayers: number;
+  minDuration: number; // minutes
+  maxDuration: number; // minutes
+  complexityLevel: number; // 1-5 (1 = easy, 5 = complex)
+  strategyLuckRating: number; // 1-5 (1 = luck, 5 = strategy)
+  themes: string | null; // JSON array of theme strings
+  isActive: boolean;
+  dateAdded: string | null;
+  dateUpdated: string | null;
+}
 
 // Physical game copies (multiple copies per game)
 export const gameCopies = sqliteTable(
   'game_copies',
   {
     id: text('id').primaryKey(),
-    gameId: text('game_id')
-      .notNull()
-      .references(() => games.id, { onDelete: 'cascade' }),
+    gameId: text('game_id').notNull(), // References game ID from Google Sheets
     copyNumber: integer('copy_number').notNull(),
     status: text('status', {
       enum: ['available', 'checked_out', 'maintenance', 'missing'],
@@ -134,9 +114,7 @@ export const checkoutAnalytics = sqliteTable(
   'checkout_analytics',
   {
     id: text('id').primaryKey(),
-    gameId: text('game_id')
-      .notNull()
-      .references(() => games.id, { onDelete: 'cascade' }),
+    gameId: text('game_id').notNull(), // References game ID from Google Sheets
     checkoutDate: text('checkout_date').notNull(), // Day only, no time for privacy
     durationMinutes: integer('duration_minutes'), // How long game was out
     returned: integer('returned', { mode: 'boolean' }).notNull(), // Whether it was returned or went missing
@@ -149,8 +127,7 @@ export const checkoutAnalytics = sqliteTable(
 );
 
 // Type exports for use throughout the application
-export type Game = typeof games.$inferSelect;
-export type NewGame = typeof games.$inferInsert;
+// Game type is defined above as interface (data comes from Google Sheets)
 
 export type GameCopy = typeof gameCopies.$inferSelect;
 export type NewGameCopy = typeof gameCopies.$inferInsert;

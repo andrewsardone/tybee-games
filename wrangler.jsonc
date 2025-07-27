@@ -19,6 +19,9 @@
   "vars": {
     "GOOGLE_SHEETS_RANGE": "Games"
   },
+  "triggers": {
+    "crons": ["*/30 * * * *"]
+  },
   "env": {
     "prod": {
       "d1_databases": [
@@ -31,6 +34,9 @@
       ],
       "vars": {
         "GOOGLE_SHEETS_RANGE": "Games"
+      },
+      "triggers": {
+        "crons": ["*/30 * * * *"]
       }
     }
   }
