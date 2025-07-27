@@ -16,6 +16,13 @@
       "migrations_dir": "src/database/migrations"
     }
   ],
+  "kv_namespaces": [
+    {
+      "binding": "CACHE",
+      "id": "local-kv-pool-turtle-tybee-games-cache",
+      "preview_id": "local-kv-pool-turtle-tybee-games-cache"
+    }
+  ],
   "vars": {
     "GOOGLE_SHEETS_RANGE": "Games"
   },
@@ -30,6 +37,13 @@
           "database_name": "prod-d1-pool-turtle-tybee-games-atlas",
           "database_id": "a6483d3d-691b-46f8-ada8-6cdaf3383647",
           "migrations_dir": "src/database/migrations"
+        }
+      ],
+      "kv_namespaces": [
+        {
+          "binding": "CACHE",
+          "id": "a7b1d4a427b748199ba6825a875718a6",
+          "preview_id": "prod-kv-pool-turtle-tybee-games-cache"
         }
       ],
       "vars": {

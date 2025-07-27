@@ -3,6 +3,8 @@ import { createDatabase } from './database/connection';
 import { getGamesWithFilters } from './services/games';
 import { getGoogleSheetsConfig } from './services/config';
 import { syncGameCopies, getOutOfSyncGames } from './services/copySync';
+import { GoogleSheetsService } from './services/googleSheets';
+import { KVCacheService } from './services/cache';
 import {
   getQueryParams,
   buildQueryString,
@@ -16,6 +18,7 @@ import ErrorMessage from './components/ErrorMessage';
 
 type Bindings = {
   DB: D1Database;
+  CACHE: KVNamespace;
   GOOGLE_SHEETS_API_KEY: string;
   GOOGLE_SHEETS_SPREADSHEET_ID: string;
   GOOGLE_SHEETS_RANGE: string;
@@ -39,7 +42,8 @@ app.get('/', async (c) => {
       const filters = queryParamsToGameFilters(queryParams);
 
       const sheetsConfig = getGoogleSheetsConfig(c.env);
-      const games = await getGamesWithFilters(db, filters, sheetsConfig);
+      const cache = new KVCacheService(c.env.CACHE);
+      const games = await getGamesWithFilters(db, filters, sheetsConfig, cache);
 
       // Return JSX components for HTMX response
       return c.render(
@@ -81,7 +85,8 @@ app.post('/admin/sync-copies', async (c) => {
     const db = createDatabase(c.env.DB);
     const sheetsConfig = getGoogleSheetsConfig(c.env);
 
-    const results = await syncGameCopies(db, sheetsConfig);
+    const cache = new KVCacheService(c.env.CACHE);
+    const results = await syncGameCopies(db, sheetsConfig, cache);
 
     return c.json({
       success: true,
@@ -106,7 +111,8 @@ app.get('/admin/sync-status', async (c) => {
     const db = createDatabase(c.env.DB);
     const sheetsConfig = getGoogleSheetsConfig(c.env);
 
-    const outOfSync = await getOutOfSyncGames(db, sheetsConfig);
+    const cache = new KVCacheService(c.env.CACHE);
+    const outOfSync = await getOutOfSyncGames(db, sheetsConfig, cache);
 
     return c.json({
       success: true,
@@ -119,6 +125,57 @@ app.get('/admin/sync-status', async (c) => {
       {
         success: false,
         error: 'Failed to check sync status',
+      },
+      500
+    );
+  }
+});
+
+// Admin endpoint to invalidate cache
+app.post('/admin/cache/invalidate', async (c) => {
+  try {
+    const sheetsConfig = getGoogleSheetsConfig(c.env);
+    const cache = new KVCacheService(c.env.CACHE);
+    const sheetsService = new GoogleSheetsService(sheetsConfig, cache);
+
+    await sheetsService.invalidateCache();
+
+    return c.json({
+      success: true,
+      message: 'Cache invalidated successfully',
+    });
+  } catch (error) {
+    console.error('Error invalidating cache:', error);
+    return c.json(
+      {
+        success: false,
+        error: 'Failed to invalidate cache',
+      },
+      500
+    );
+  }
+});
+
+// Admin endpoint to refresh cache
+app.post('/admin/cache/refresh', async (c) => {
+  try {
+    const sheetsConfig = getGoogleSheetsConfig(c.env);
+    const cache = new KVCacheService(c.env.CACHE);
+    const sheetsService = new GoogleSheetsService(sheetsConfig, cache);
+
+    const games = await sheetsService.refreshCache();
+
+    return c.json({
+      success: true,
+      message: `Cache refreshed with ${games.length} games`,
+      gameCount: games.length,
+    });
+  } catch (error) {
+    console.error('Error refreshing cache:', error);
+    return c.json(
+      {
+        success: false,
+        error: 'Failed to refresh cache',
       },
       500
     );
@@ -140,7 +197,8 @@ async function scheduled(
     const sheetsConfig = getGoogleSheetsConfig(env);
 
     // Run the sync
-    const results = await syncGameCopies(db, sheetsConfig);
+    const cache = new KVCacheService(env.CACHE);
+    const results = await syncGameCopies(db, sheetsConfig, cache);
 
     // Log results
     const summary = results.reduce(

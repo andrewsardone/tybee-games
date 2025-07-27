@@ -1,4 +1,5 @@
 import type { Game } from '../database/schema';
+import type { Cache } from './cache';
 
 // Extend Game type to include totalCopies from sheets
 export interface GameWithCopyCount extends Game {
@@ -17,17 +18,31 @@ interface GoogleSheetsResponse {
 
 export class GoogleSheetsService {
   private config: GoogleSheetsConfig;
+  private cache?: Cache;
+  private cacheKey = 'games-data';
+  private cacheTTL = 300; // 5 minutes in seconds
 
-  constructor(config: GoogleSheetsConfig) {
+  constructor(config: GoogleSheetsConfig, cache?: Cache) {
     this.config = config;
+    this.cache = cache;
 
     if (!config.apiKey) {
       throw new Error('API key is required for Google Sheets access');
     }
   }
 
-  async getGames(): Promise<GameWithCopyCount[]> {
+  async getGames(useCache = true): Promise<GameWithCopyCount[]> {
+    // Try to get from cache first
+    if (useCache && this.cache) {
+      const cached = await this.cache.get<GameWithCopyCount[]>(this.cacheKey);
+      if (cached) {
+        console.log('Returning games from cache');
+        return cached;
+      }
+    }
+
     try {
+      console.log('Fetching games from Google Sheets API');
       const url = `https://sheets.googleapis.com/v4/spreadsheets/${this.config.spreadsheetId}/values/${this.config.range}?key=${this.config.apiKey}`;
 
       const response = await fetch(url);
@@ -49,7 +64,7 @@ export class GoogleSheetsService {
       const headers = rows[0];
       const dataRows = rows.slice(1);
 
-      return dataRows.map((row, index) => {
+      const games = dataRows.map((row, index) => {
         const game: Partial<GameWithCopyCount> = {};
 
         headers.forEach((header: string, colIndex: number) => {
@@ -138,9 +153,31 @@ export class GoogleSheetsService {
           totalCopies: game.totalCopies || 0,
         } as GameWithCopyCount;
       });
+
+      // Cache the result
+      if (this.cache) {
+        await this.cache.put(this.cacheKey, games, {
+          expirationTtl: this.cacheTTL,
+        });
+        console.log('Games data cached successfully');
+      }
+
+      return games;
     } catch (error) {
       console.error('Error fetching games from Google Sheets:', error);
       throw new Error('Failed to fetch games from Google Sheets');
     }
+  }
+
+  async invalidateCache(): Promise<void> {
+    if (this.cache) {
+      await this.cache.delete(this.cacheKey);
+      console.log('Cache invalidated successfully');
+    }
+  }
+
+  async refreshCache(): Promise<GameWithCopyCount[]> {
+    await this.invalidateCache();
+    return this.getGames(false); // Force fresh fetch
   }
 }

@@ -2,6 +2,7 @@ import { eq, count, and, inArray } from 'drizzle-orm';
 import type { Database } from '../database/connection';
 import { gameCopies } from '../database/schema';
 import { GoogleSheetsService, type GoogleSheetsConfig } from './googleSheets';
+import type { Cache } from './cache';
 
 export interface SyncResult {
   gameId: string;
@@ -14,10 +15,11 @@ export interface SyncResult {
 
 export async function syncGameCopies(
   db: Database,
-  sheetsConfig: GoogleSheetsConfig
+  sheetsConfig: GoogleSheetsConfig,
+  cache?: Cache
 ): Promise<SyncResult[]> {
-  const sheetsService = new GoogleSheetsService(sheetsConfig);
-  const games = await sheetsService.getGames();
+  const sheetsService = new GoogleSheetsService(sheetsConfig, cache);
+  const games = await sheetsService.getGames(false); // Force fresh data for sync
   const results: SyncResult[] = [];
 
   for (const game of games) {
@@ -136,7 +138,8 @@ async function removeAvailableCopies(
 
 export async function getOutOfSyncGames(
   db: Database,
-  sheetsConfig: GoogleSheetsConfig
+  sheetsConfig: GoogleSheetsConfig,
+  cache?: Cache
 ): Promise<
   Array<{
     gameId: string;
@@ -146,7 +149,7 @@ export async function getOutOfSyncGames(
     difference: number;
   }>
 > {
-  const sheetsService = new GoogleSheetsService(sheetsConfig);
+  const sheetsService = new GoogleSheetsService(sheetsConfig, cache);
   const games = await sheetsService.getGames();
   const outOfSync = [];
 

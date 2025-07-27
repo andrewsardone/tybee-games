@@ -2,6 +2,7 @@ import { eq, count, sql } from 'drizzle-orm';
 import type { Database } from '../database/connection';
 import { gameCopies, type Game } from '../database/schema';
 import { GoogleSheetsService, type GoogleSheetsConfig } from './googleSheets';
+import type { Cache } from './cache';
 
 // Extend the base Game type with availability info
 export interface GameWithAvailability extends Game {
@@ -26,18 +27,20 @@ export interface GameFilters {
 
 export async function getAllGamesWithAvailability(
   db: Database,
-  sheetsConfig: GoogleSheetsConfig
+  sheetsConfig: GoogleSheetsConfig,
+  cache?: Cache
 ): Promise<GameWithAvailability[]> {
-  return getGamesWithFilters(db, {}, sheetsConfig);
+  return getGamesWithFilters(db, {}, sheetsConfig, cache);
 }
 
 export async function getGamesWithFilters(
   db: Database,
   filters: GameFilters,
-  sheetsConfig: GoogleSheetsConfig
+  sheetsConfig: GoogleSheetsConfig,
+  cache?: Cache
 ): Promise<GameWithAvailability[]> {
   // Get games from Google Sheets
-  const sheetsService = new GoogleSheetsService(sheetsConfig);
+  const sheetsService = new GoogleSheetsService(sheetsConfig, cache);
   const allGames = await sheetsService.getGames();
 
   // Apply filters to games data
@@ -128,10 +131,11 @@ export async function getGamesWithFilters(
 export async function getGameById(
   db: Database,
   id: string,
-  sheetsConfig: GoogleSheetsConfig
+  sheetsConfig: GoogleSheetsConfig,
+  cache?: Cache
 ): Promise<GameWithAvailability | null> {
   // Get game from Google Sheets
-  const sheetsService = new GoogleSheetsService(sheetsConfig);
+  const sheetsService = new GoogleSheetsService(sheetsConfig, cache);
   const allGames = await sheetsService.getGames();
   const game = allGames.find((g) => g.id === id);
 
