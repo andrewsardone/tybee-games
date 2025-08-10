@@ -25,7 +25,7 @@ const RecommendationStep2: FC<RecommendationStep2Props> = ({
       <form
         hx-get={`/recommend/step/3?players=${players}`}
         hx-target="body"
-        hx-swap="innerHTML"
+        hx-swap="innerHTML scroll:top"
         hx-push-url="true"
         className="step-form"
       >
@@ -91,7 +91,7 @@ const RecommendationStep2: FC<RecommendationStep2Props> = ({
             className="back-button"
             hx-get="/recommend/step/1"
             hx-target="body"
-            hx-swap="innerHTML"
+            hx-swap="innerHTML scroll:top"
             hx-push-url="true"
           >
             ← Previous

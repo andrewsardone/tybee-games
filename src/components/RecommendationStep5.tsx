@@ -34,7 +34,7 @@ const RecommendationStep5: FC<RecommendationStep5Props> = ({
       <form
         hx-get={`/recommend/results?players=${players}&learningTime=${learningTime}&duration=${duration}&strategy=${strategy}`}
         hx-target="body"
-        hx-swap="innerHTML"
+        hx-swap="innerHTML scroll:top"
         hx-push-url="true"
         className="step-form"
       >
@@ -67,7 +67,7 @@ const RecommendationStep5: FC<RecommendationStep5Props> = ({
             className="back-button"
             hx-get={`/recommend/step/4?players=${players}&learningTime=${learningTime}&duration=${duration}`}
             hx-target="body"
-            hx-swap="innerHTML"
+            hx-swap="innerHTML scroll:top"
             hx-push-url="true"
           >
             ← Previous

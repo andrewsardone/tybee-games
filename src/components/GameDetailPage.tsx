@@ -42,7 +42,7 @@ const GameDetailPage: FC<GameDetailPageProps> = ({ game }) => {
           className="back-button"
           hx-get="/browse"
           hx-target="body"
-          hx-swap="innerHTML"
+          hx-swap="innerHTML scroll:top"
           hx-push-url="true"
         >
           ← Back to Browse
@@ -203,7 +203,7 @@ const GameDetailPage: FC<GameDetailPageProps> = ({ game }) => {
               className="action-button"
               hx-get="/recommend"
               hx-target="body"
-              hx-swap="innerHTML"
+              hx-swap="innerHTML scroll:top"
               hx-push-url="true"
             >
               Get Recommendations
@@ -217,7 +217,7 @@ const GameDetailPage: FC<GameDetailPageProps> = ({ game }) => {
               className="action-button"
               hx-get={`/browse?search=${encodeURIComponent(bgg?.categories[0] || game.name.split(' ')[0])}`}
               hx-target="body"
-              hx-swap="innerHTML"
+              hx-swap="innerHTML scroll:top"
               hx-push-url="true"
             >
               Browse Similar
@@ -231,7 +231,7 @@ const GameDetailPage: FC<GameDetailPageProps> = ({ game }) => {
               className="action-button"
               hx-get="/browse"
               hx-target="body"
-              hx-swap="innerHTML"
+              hx-swap="innerHTML scroll:top"
               hx-push-url="true"
             >
               Browse All Games
