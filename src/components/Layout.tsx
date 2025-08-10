@@ -877,7 +877,15 @@ const Layout: FC<LayoutProps> = ({ children, title = 'Tybee Games' }) => {
               margin-bottom: 32px;
             }
             .player-option input[type="radio"] {
-              display: none;
+              display: none !important;
+              opacity: 0 !important;
+              position: absolute !important;
+              left: -9999px !important;
+              width: 0 !important;
+              height: 0 !important;
+              margin: 0 !important;
+              padding: 0 !important;
+              border: none !important;
             }
             .player-option .option-card {
               background: #f8f9fa;
@@ -911,7 +919,15 @@ const Layout: FC<LayoutProps> = ({ children, title = 'Tybee Games' }) => {
               margin-bottom: 32px;
             }
             .learning-option input[type="radio"] {
-              display: none;
+              display: none !important;
+              opacity: 0 !important;
+              position: absolute !important;
+              left: -9999px !important;
+              width: 0 !important;
+              height: 0 !important;
+              margin: 0 !important;
+              padding: 0 !important;
+              border: none !important;
             }
             .learning-option .option-card {
               background: #f8f9fa;
@@ -954,7 +970,15 @@ const Layout: FC<LayoutProps> = ({ children, title = 'Tybee Games' }) => {
               margin-bottom: 32px;
             }
             .duration-option input[type="radio"] {
-              display: none;
+              display: none !important;
+              opacity: 0 !important;
+              position: absolute !important;
+              left: -9999px !important;
+              width: 0 !important;
+              height: 0 !important;
+              margin: 0 !important;
+              padding: 0 !important;
+              border: none !important;
             }
             .duration-option .option-card {
               background: #f8f9fa;
