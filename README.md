@@ -6,9 +6,12 @@ A web application for browsing and managing board games available for borrowing 
 
 - **Framework**: [HonoJS](https://hono.dev/) - Lightweight web framework
 - **Runtime**: Cloudflare Workers - Edge computing platform
-- **Frontend**: HTMX for dynamic interactions
-- **Language**: TypeScript
-- **Styling**: Vanilla CSS with mobile-first design
+- **Frontend**: HTMX for dynamic interactions without complex JavaScript
+- **Language**: TypeScript for type safety and better developer experience
+- **Styling**: Vanilla CSS with mobile-first responsive design
+- **Data Sources**: Google Sheets (inventory) + BoardGameGeek API (game data)
+- **Database**: Cloudflare D1 (SQLite) for operational data
+- **Caching**: Cloudflare KV with stale-while-revalidate strategy
 
 ## Getting Started
 
@@ -50,10 +53,33 @@ The application will be available at `http://localhost:8787`
 
 ## Available Scripts
 
+### Development
+
 - `npm run dev` - Start development server with hot reload
 - `npm run build` - Build the TypeScript code
 - `npm run deploy` - Deploy to Cloudflare Workers
 - `npm test` - Run tests (not yet implemented)
+- `npm run lint` - Run ESLint
+- `npm run format` - Format code with Prettier
+
+### Database Management
+
+- `npm run db:migrate` - Apply database migrations locally
+- `npm run db:seed` - Seed database with sample data
+- `npm run db:studio` - Open Drizzle Studio for database inspection
+
+### Cache & Data Management
+
+- `npm run admin:full-resync` - Fast refresh (returns cached data, refreshes in background)
+- `npm run admin:force-clear-cache` - Force clear all caches (use sparingly)
+- `npm run admin:enrich-missing` - Progressively enrich games missing BGG data
+- `npm run admin:enrichment-status` - Check BGG data coverage and missing games
+- `npm run cache:refresh` - Refresh sheets and enriched catalog cache
+- `npm run cache:invalidate` - Invalidate all caches
+
+### Production Scripts
+
+Add `:prod` suffix to run against production (e.g., `npm run admin:full-resync:prod`)
 
 ## Project Structure
 
@@ -76,38 +102,94 @@ tybee-games/
 
 ### Current Features
 
-- **Game Browsing**: Display available board games in a grid layout
-- **Availability Status**: Shows if games are available or currently borrowed
-- **Game Details**: Player count and estimated duration for each game
-- **Responsive Design**: Optimized for iPad tablets and mobile devices
-- **Real-time Updates**: Uses HTMX for dynamic content loading
+#### **Core Functionality**
 
-### Planned Features
+- **Two-Path Navigation**: Clear Browse vs Recommend user journey
+- **Advanced Game Browsing**: Grid layout with rich BGG data and advanced filtering
+- **Individual Game Details**: Comprehensive game pages with BGG integration
+- **5-Step Recommendation Wizard**: Personalized game suggestions with explanations
+- **Instant App Startup**: Stale-while-revalidate caching for zero loading screens
 
-- Game suggestion system
-- Search and filtering
-- Reservation system
-- Game reviews and ratings
-- Admin panel for game management
+#### **Data & Performance**
+
+- **Hybrid Data Architecture**: Google Sheets inventory + BoardGameGeek API enrichment
+- **Smart Caching**: 30-minute TTL with background refresh, serves stale content instantly
+- **BGG API Integration**: Rate-limited with batch processing and comprehensive error handling
+- **Progressive Enhancement**: Basic game info loads first, BGG data enriches asynchronously
+
+#### **User Experience**
+
+- **Mobile-Responsive Design**: Optimized for iPad tablets and mobile devices
+- **HTMX-Powered Navigation**: Dynamic content loading without page refreshes
+- **Advanced Filtering**: Search by name, category, mechanic, rating, year, complexity
+- **Loading States**: Skeleton cards, spinners, and graceful error handling
+
+#### **Admin Features**
+
+- **Cache Management**: Multiple endpoints for different refresh strategies
+- **BGG Data Enrichment**: Progressive enrichment and status monitoring
+- **Sync Management**: Google Sheets synchronization with conflict detection
+- **Analytics**: Game popularity, enrichment status, and usage metrics
+
+### Planned Features (Phase 4B+)
+
+- **Rental Management**: Checkout flow, return processing, overdue tracking
+- **Admin Dashboard**: Active rentals overview, inventory management
+- **User Accounts**: Rental history, preferences, wishlist system
+- **Email Notifications**: Checkout confirmations, return reminders
+- **Advanced Analytics**: Usage patterns, popular games, ROI tracking
 
 ## Development
 
 ### Architecture
 
-The application uses a hybrid data architecture combining Google Sheets and SQLite:
+The application uses a sophisticated hybrid data architecture with intelligent caching:
 
-- **Backend**: HonoJS handles routing and serves HTML responses
-- **Frontend**: HTMX provides dynamic interactions without complex JavaScript
-- **Styling**: Mobile-first CSS with iPad optimizations
-- **Data**: Games catalog from Google Sheets, operational data in SQLite (Cloudflare D1)
-- **Sync**: Automated synchronization every 30 minutes via Cloudflare Cron Triggers
+#### **Data Layer**
 
-For detailed architecture information, see [ARCHITECTURE.md](./ARCHITECTURE.md).
+- **Google Sheets**: Game inventory (source of truth for availability)
+- **BoardGameGeek API**: Rich game data (images, descriptions, ratings, mechanics)
+- **Cloudflare D1**: Operational data (game copies, checkouts, analytics)
+- **Cloudflare KV**: Intelligent caching with stale-while-revalidate strategy
+
+#### **Performance Strategy**
+
+- **Stale-While-Revalidate**: Instant app startup, background data refresh
+- **BGG Rate Limiting**: 2-second delays, exponential backoff, batch processing
+- **Progressive Enhancement**: Basic data loads first, enrichment happens asynchronously
+- **Edge Deployment**: Global CDN with sub-100ms response times
+
+#### **Application Architecture**
+
+- **Backend**: HonoJS with server-side rendering and HTMX integration
+- **Frontend**: HTMX for dynamic interactions, vanilla CSS for styling
+- **Caching**: 30-minute TTL with 2x stale serving window
+- **Sync**: Automated synchronization with conflict detection and resolution
+
+For detailed architecture information, see [ARCHITECTURE.md](./ARCHITECTURE.md) and [SPEC.md](./SPEC.md).
 
 ### Key Routes
 
-- `GET /` - Main application page
-- `GET /games` - Returns games list as HTML fragment
+#### **User Routes**
+
+- `GET /` - Two-path home screen (Browse vs Recommend)
+- `GET /browse` - Advanced game browsing with filters
+- `GET /games/:id` - Individual game detail pages
+- `GET /recommend` - 5-step recommendation wizard
+- `GET /recommend/results` - Personalized game recommendations
+
+#### **API Routes**
+
+- `GET /browse/games` - HTMX endpoint for filtered game cards
+- `GET /api/stats` - Home page statistics
+- `GET /recommend/step/1-5` - Recommendation wizard steps
+
+#### **Admin Routes**
+
+- `POST /admin/full-resync` - Fast refresh with background update
+- `POST /admin/force-clear-cache` - Complete cache invalidation
+- `POST /admin/enrich-missing` - Progressive BGG data enrichment
+- `GET /admin/enrichment-status` - BGG data coverage report
 
 ### Styling Guidelines
 

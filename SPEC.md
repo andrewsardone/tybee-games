@@ -46,11 +46,21 @@ Tybee Games is a comprehensive board game rental management system designed for 
 - **Enhanced User Experience**: Clickable game cards, "View Details" buttons, mobile-responsive design
 - **Image Optimization**: Lazy loading, error handling, and loading states throughout
 
+#### **Performance & Reliability Improvements (Latest)**
+
+- **BGG API Rate Limiting**: Comprehensive rate limiting with 2-second delays, exponential backoff, and retry logic
+- **Batch Processing**: Sequential BGG enrichment (5 games at a time) to prevent API overwhelm
+- **Stale-While-Revalidate Caching**: Instant app startup - serves cached content immediately while refreshing in background
+- **Progressive Enrichment**: Gradual BGG data enrichment without blocking user experience
+- **Graceful Degradation**: Games work with basic data if BGG enrichment fails
+
 ### **Current Architecture**
 
 - **Frontend**: HTMX + TypeScript + Progressive Web App capabilities
 - **Backend**: Hono.js on Cloudflare Workers with server-side rendering
 - **Data Layer**: Google Sheets (inventory) + BGG API (game data) + D1 SQLite (operational data) + KV (caching)
+- **Caching Strategy**: True stale-while-revalidate with 30-minute TTL and 2x stale serving window
+- **API Integration**: Rate-limited BGG API with batch processing and comprehensive error handling
 - **Deployment**: Cloudflare Workers with edge deployment and automatic scaling
 
 ### **Current Route Structure**
@@ -65,6 +75,16 @@ GET /recommend/step/1-5         # Individual wizard steps
 GET /recommend/results          # Personalized recommendations
 GET /api/stats                  # Home page statistics
 GET /admin/*                    # Admin endpoints for sync and cache management
+
+# Admin API Endpoints
+POST /admin/full-resync         # Fast refresh - returns cached data, refreshes in background
+POST /admin/force-clear-cache   # Force clear all caches (use sparingly)
+POST /admin/enrich-missing      # Progressive BGG enrichment for missing games
+GET  /admin/enrichment-status   # Check BGG data coverage and missing games
+POST /admin/sync-copies         # Sync game copies from Google Sheets
+GET  /admin/sync-status         # Check sync status and out-of-sync games
+POST /admin/cache/refresh       # Refresh sheets and enriched catalog cache
+POST /admin/cache/invalidate    # Invalidate all caches
 ```
 
 ## User Stories & Requirements
@@ -358,7 +378,9 @@ GET  /partials/checkout-form/:gameId  # HTML checkout form
   - Edge deployment for low latency
 - **Cloudflare KV** for configuration and caching
   - Authentication settings, feature flags
-  - Cached recommendation algorithms
+  - Stale-while-revalidate caching with 30-minute TTL
+  - BGG API response caching (7 days search, 24 hours game data)
+  - Enriched game catalog caching with background refresh
 
 **Asset Management**
 
@@ -375,6 +397,37 @@ GET  /partials/checkout-form/:gameId  # HTML checkout form
   - Periodic refresh of game availability using `hx-trigger="every 30s"`
 - Live status updates when games are checked out/returned
   - HTML partial updates for availability badges and checkout status
+
+### Caching & Performance Strategy
+
+**Stale-While-Revalidate Pattern**
+
+- **Instant App Startup**: Cached content served immediately, no loading screens
+- **Background Refresh**: Data updates happen behind the scenes
+- **30-minute TTL**: Fresh data for 30 minutes, stale serving for up to 60 minutes
+- **Graceful Degradation**: App works even if BGG API is down
+
+**BGG API Integration**
+
+- **Rate Limiting**: 2-second delays between requests with exponential backoff
+- **Batch Processing**: Sequential enrichment (5 games at a time) to prevent API overwhelm
+- **Retry Logic**: Automatic retries for 429 rate limits and 202 processing responses
+- **Progressive Enrichment**: Gradual BGG data enrichment without blocking user experience
+- **Comprehensive Caching**: 7-day search cache, 24-hour game data cache
+
+**Cache Management**
+
+- **Smart Refresh**: `refreshCatalog()` serves cached data while updating in background
+- **Force Clear**: `forceClearAndRebuild()` for complete cache invalidation (use sparingly)
+- **Progressive Updates**: `enrichMissingGames()` for gradual data improvement
+- **Admin Controls**: Multiple endpoints for different cache management needs
+
+**Performance Optimizations**
+
+- **Edge Deployment**: Cloudflare Workers for global low latency
+- **Image Optimization**: Lazy loading with error handling and placeholders
+- **HTMX Efficiency**: Minimal JavaScript, server-side rendering
+- **Batch Operations**: Grouped database queries and API calls
 
 ### Data Storage Schema
 
