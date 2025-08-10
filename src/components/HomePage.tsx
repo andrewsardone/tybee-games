@@ -26,7 +26,7 @@ const HomePage: FC = () => {
             className="path-button primary"
             hx-get="/recommend"
             hx-target="body"
-            hx-swap="transition:true"
+            hx-swap="innerHTML"
             hx-push-url="true"
           >
             Start Quiz
@@ -41,7 +41,7 @@ const HomePage: FC = () => {
             className="path-button secondary"
             hx-get="/browse"
             hx-target="body"
-            hx-swap="transition:true"
+            hx-swap="innerHTML"
             hx-push-url="true"
           >
             Browse Games

@@ -33,7 +33,7 @@ const BrowsePage: FC<BrowsePageProps> = ({
           className="back-button"
           hx-get="/"
           hx-target="body"
-          hx-swap="transition:true"
+          hx-swap="innerHTML"
           hx-push-url="true"
         >
           ← Back to Home

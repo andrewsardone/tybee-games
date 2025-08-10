@@ -454,60 +454,7 @@ const Layout: FC<LayoutProps> = ({ children, title = 'Tybee Games' }) => {
               100% { transform: rotate(360deg); }
             }
             
-            /* View transition styles */
-            @view-transition {
-              navigation: auto;
-            }
-            
-            /* Transition names for smooth navigation */
-            .site-header {
-              view-transition-name: site-header;
-            }
-            .home-paths {
-              view-transition-name: home-paths;
-            }
-            .page-header {
-              view-transition-name: page-header;
-            }
-            .games-grid {
-              view-transition-name: games-grid;
-            }
-            .filters {
-              view-transition-name: filters;
-            }
-            
-            /* Transition animations */
-            ::view-transition-old(root) {
-              animation: slide-out-left 0.3s ease-in-out;
-            }
-            ::view-transition-new(root) {
-              animation: slide-in-right 0.3s ease-in-out;
-            }
-            
-            @keyframes slide-out-left {
-              to { transform: translateX(-100%); }
-            }
-            @keyframes slide-in-right {
-              from { transform: translateX(100%); }
-            }
-            
-            /* Fade transitions for content areas */
-            ::view-transition-old(games-grid),
-            ::view-transition-old(home-paths) {
-              animation: fade-out 0.2s ease-in-out;
-            }
-            ::view-transition-new(games-grid),
-            ::view-transition-new(home-paths) {
-              animation: fade-in 0.2s ease-in-out;
-            }
-            
-            @keyframes fade-out {
-              to { opacity: 0; }
-            }
-            @keyframes fade-in {
-              from { opacity: 0; }
-            }
-            
+
             /* Advanced filter styles */
             .advanced-filters {
               background: white;

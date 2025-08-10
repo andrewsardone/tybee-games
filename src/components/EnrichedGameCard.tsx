@@ -14,7 +14,7 @@ const EnrichedGameCard: FC<EnrichedGameCardProps> = ({ game }) => {
         className="game-image-link"
         hx-get={`/games/${game.id}`}
         hx-target="body"
-        hx-swap="transition:true"
+        hx-swap="innerHTML"
         hx-push-url="true"
       >
         <div className="game-image">
@@ -69,7 +69,7 @@ const EnrichedGameCard: FC<EnrichedGameCardProps> = ({ game }) => {
           className="view-details-button"
           hx-get={`/games/${game.id}`}
           hx-target="body"
-          hx-swap="transition:true"
+          hx-swap="innerHTML"
           hx-push-url="true"
         >
           View Details →

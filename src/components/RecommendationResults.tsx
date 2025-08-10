@@ -50,7 +50,7 @@ const RecommendationResults: FC<RecommendationResultsProps> = ({
           className="back-button"
           hx-get="/recommend/step/5"
           hx-target="body"
-          hx-swap="transition:true"
+          hx-swap="innerHTML"
           hx-push-url="true"
         >
           ← Adjust Preferences
@@ -75,7 +75,7 @@ const RecommendationResults: FC<RecommendationResultsProps> = ({
               className="try-again-button"
               hx-get="/recommend/step/1"
               hx-target="body"
-              hx-swap="transition:true"
+              hx-swap="innerHTML"
               hx-push-url="true"
             >
               Try Different Preferences
@@ -84,7 +84,7 @@ const RecommendationResults: FC<RecommendationResultsProps> = ({
               className="browse-all-button"
               hx-get="/browse"
               hx-target="body"
-              hx-swap="transition:true"
+              hx-swap="innerHTML"
               hx-push-url="true"
             >
               Browse All Games
@@ -145,7 +145,7 @@ const RecommendationResults: FC<RecommendationResultsProps> = ({
               className="new-recommendation-button"
               hx-get="/recommend/step/1"
               hx-target="body"
-              hx-swap="transition:true"
+              hx-swap="innerHTML"
               hx-push-url="true"
             >
               Get New Recommendations
@@ -154,7 +154,7 @@ const RecommendationResults: FC<RecommendationResultsProps> = ({
               className="browse-all-button secondary"
               hx-get="/browse"
               hx-target="body"
-              hx-swap="transition:true"
+              hx-swap="innerHTML"
               hx-push-url="true"
             >
               Browse All Games
@@ -163,7 +163,7 @@ const RecommendationResults: FC<RecommendationResultsProps> = ({
               className="home-button secondary"
               hx-get="/"
               hx-target="body"
-              hx-swap="transition:true"
+              hx-swap="innerHTML"
               hx-push-url="true"
             >
               Back to Home

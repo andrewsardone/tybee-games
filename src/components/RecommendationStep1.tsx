@@ -23,7 +23,7 @@ const RecommendationStep1: FC<RecommendationStep1Props> = ({
       <form
         hx-get="/recommend/step/2"
         hx-target="body"
-        hx-swap="transition:true"
+        hx-swap="innerHTML"
         hx-push-url="true"
         className="step-form"
       >
@@ -73,7 +73,7 @@ const RecommendationStep1: FC<RecommendationStep1Props> = ({
             className="back-button"
             hx-get="/"
             hx-target="body"
-            hx-swap="transition:true"
+            hx-swap="innerHTML"
             hx-push-url="true"
           >
             ← Back to Home
