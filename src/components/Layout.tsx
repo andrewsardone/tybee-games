@@ -132,6 +132,11 @@ const Layout: FC<LayoutProps> = ({ children, title = 'Tybee Games' }) => {
               line-height: 1.4;
               margin-bottom: 12px;
               flex: 1;
+              overflow-wrap: break-word;
+              word-wrap: break-word;
+              word-break: break-word;
+              max-width: 100%;
+              overflow-x: hidden;
             }
             .game-meta {
               font-size: 12px;
@@ -649,11 +654,14 @@ const Layout: FC<LayoutProps> = ({ children, title = 'Tybee Games' }) => {
               transform: translateY(-1px);
             }
             .game-description {
-              background: white;
-              border-radius: 16px;
-              padding: 32px;
+              background: transparent;
+              padding: 0;
               margin-bottom: 32px;
-              box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+              overflow-wrap: break-word;
+              word-wrap: break-word;
+              word-break: break-word;
+              max-width: 100%;
+              overflow-x: hidden;
             }
             .game-description h2 {
               font-size: 24px;
