@@ -111,11 +111,25 @@ export class GameDataService {
   }
 
   /**
-   * Manually refresh the catalog cache
+   * Manually refresh the catalog cache (stale-while-revalidate)
    */
   async refreshCatalog(): Promise<EnrichedGame[]> {
-    await this.cache.delete(this.catalogCacheKey);
-    return await this.buildEnrichedCatalog();
+    // Get current cached data to return immediately if available
+    const cacheResult = await this.cache.getWithMetadata<EnrichedGame[]>(
+      this.catalogCacheKey
+    );
+
+    // Start background refresh
+    this.refreshCatalogInBackground();
+
+    // Return cached data if available, otherwise build fresh
+    if (cacheResult.data) {
+      console.log('Returning cached data while refreshing in background');
+      return cacheResult.data;
+    } else {
+      console.log('No cached data available, building fresh catalog');
+      return await this.buildEnrichedCatalog();
+    }
   }
 
   /**
@@ -205,10 +219,10 @@ export class GameDataService {
   }
 
   /**
-   * Clear all caches and rebuild from Google Sheets
+   * Force clear cache and rebuild (only use when absolutely necessary)
    */
-  async fullResync(): Promise<EnrichedGame[]> {
-    console.log('Starting full resync from Google Sheets...');
+  async forceClearAndRebuild(): Promise<EnrichedGame[]> {
+    console.log('Force clearing cache and rebuilding catalog...');
 
     // Clear all relevant caches
     await this.cache.delete(this.catalogCacheKey);
@@ -218,6 +232,34 @@ export class GameDataService {
     return await this.buildEnrichedCatalog();
   }
 
+  /**
+   * Clear all caches and rebuild from Google Sheets (stale-while-revalidate)
+   */
+  async fullResync(): Promise<EnrichedGame[]> {
+    console.log('Starting full resync from Google Sheets...');
+
+    // Get current cached data to return immediately if available
+    const cacheResult = await this.cache.getWithMetadata<EnrichedGame[]>(
+      this.catalogCacheKey
+    );
+
+    // Invalidate sheets cache and start background refresh
+    await this.sheetsService.invalidateCache();
+    this.refreshCatalogInBackground();
+
+    // Return cached data if available, otherwise build fresh
+    if (cacheResult.data) {
+      console.log(
+        'Returning cached data while performing full resync in background'
+      );
+      return cacheResult.data;
+    } else {
+      console.log(
+        'No cached data available, performing full resync synchronously'
+      );
+      return await this.buildEnrichedCatalog();
+    }
+  }
   /**
    * Build enriched catalog by combining Sheets + BGG data
    */

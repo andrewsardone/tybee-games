@@ -486,10 +486,11 @@ app.post('/admin/full-resync', async (c) => {
 
     return c.json({
       success: true,
-      message: `Full resync complete: ${enrichedGames.length} games loaded, ${enrichedCount} enriched with BGG data`,
+      message: `Full resync initiated: ${enrichedGames.length} games returned from cache, refresh happening in background`,
       totalGames: enrichedGames.length,
       enrichedGames: enrichedCount,
       missingEnrichment: enrichedGames.length - enrichedCount,
+      note: 'Data refreshing in background - subsequent requests will have updated data',
     });
   } catch (error) {
     console.error('Error during full resync:', error);
@@ -569,6 +570,40 @@ app.get('/admin/enrichment-status', async (c) => {
       {
         success: false,
         error: 'Failed to check enrichment status',
+      },
+      500
+    );
+  }
+});
+
+// Admin endpoint for force clear cache (only use when absolutely necessary)
+app.post('/admin/force-clear-cache', async (c) => {
+  try {
+    const db = createDatabase(c.env.DB);
+    const sheetsConfig = getGoogleSheetsConfig(c.env);
+    const cache = new KVCacheService(c.env.CACHE);
+    const gameDataService = new GameDataService(db, sheetsConfig, cache);
+
+    console.log('Force clearing cache and rebuilding...');
+    const enrichedGames = await gameDataService.forceClearAndRebuild();
+
+    const enrichedCount = enrichedGames.filter((g) => g.enriched).length;
+
+    return c.json({
+      success: true,
+      message: `Cache force cleared and rebuilt: ${enrichedGames.length} games loaded, ${enrichedCount} enriched with BGG data`,
+      totalGames: enrichedGames.length,
+      enrichedGames: enrichedCount,
+      missingEnrichment: enrichedGames.length - enrichedCount,
+      warning: 'This operation cleared all cached data - use sparingly',
+    });
+  } catch (error) {
+    console.error('Error during force clear:', error);
+    return c.json(
+      {
+        success: false,
+        error: 'Failed to force clear cache',
+        details: error instanceof Error ? error.message : 'Unknown error',
       },
       500
     );

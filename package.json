@@ -28,6 +28,8 @@
     "admin:enrich-missing:prod": "curl -X POST https://tybee-games-prod.happy-hose9415.workers.dev/admin/enrich-missing",
     "admin:enrichment-status": "curl http://localhost:8787/admin/enrichment-status",
     "admin:enrichment-status:prod": "curl https://tybee-games-prod.happy-hose9415.workers.dev/admin/enrichment-status",
+    "admin:force-clear-cache": "curl -X POST http://localhost:8787/admin/force-clear-cache",
+    "admin:force-clear-cache:prod": "curl -X POST https://tybee-games-prod.happy-hose9415.workers.dev/admin/force-clear-cache",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
