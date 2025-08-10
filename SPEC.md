@@ -2,7 +2,70 @@
 
 ## Overview
 
-<!-- Brief description of the system -->
+Tybee Games is a comprehensive board game rental management system designed for restaurants and entertainment venues. The platform provides an intuitive tablet-based interface for customers to discover, get personalized recommendations for, and rent board games, while offering powerful administrative tools for staff to manage inventory and track rentals.
+
+## Current Implementation Status
+
+### ✅ **COMPLETED PHASES**
+
+#### **Phase 1: Data Layer & Caching (COMPLETED)**
+
+- **BGG API Integration**: Complete BoardGameGeek API service with fuzzy search and automatic ID resolution
+- **Hybrid Data Architecture**: Google Sheets for inventory + BGG API for rich game data + smart KV caching
+- **Stale-While-Revalidate Caching**: 30-minute TTL with background refresh for zero-downtime updates
+- **Progressive Enhancement**: Basic game info loads first, BGG data enriches asynchronously
+- **Admin Endpoints**: Catalog refresh, sync status, and cache management capabilities
+
+#### **Phase 2: Navigation & Home Screen (COMPLETED)**
+
+- **Two-Path Home Screen**: Clear Browse vs Recommend user journey
+- **HTMX-Powered Navigation**: Smooth transitions with View Transition API
+- **Route Restructuring**: `/` → `/browse` → `/recommend` flow
+- **Loading States**: Skeleton cards, spinners, and error handling
+- **Mobile-Responsive Design**: Touch-friendly interfaces with responsive layouts
+
+#### **Phase 3: Recommendation Wizard (COMPLETED)**
+
+- **5-Step Wizard Flow**: Player count → Learning complexity → Duration → Strategy vs Luck → Themes
+- **Smart Recommendation Algorithm**:
+  - Player count matching (critical - 40 points)
+  - Duration and complexity scoring (25 + 20 points)
+  - Strategy preference alignment (10 points)
+  - Theme/category matching (15 points)
+  - BGG rating and popularity bonuses (10 points total)
+- **Rich Results Experience**: Top 3 recommendations with match percentages and detailed explanations
+- **Interactive UI Components**: Visual player selection, complexity descriptions, strategy slider, theme multi-select
+
+#### **Phase 4A: Game Details & Polish (COMPLETED)**
+
+- **Individual Game Detail Pages**: Rich `/games/:id` routes with comprehensive BGG data display
+- **Advanced Filtering System**:
+  - Enhanced search across names, publishers, categories, mechanics
+  - Collapsible advanced filters (category, mechanic, rating, year range)
+  - Availability toggle and flexible duration/complexity matching
+- **Enhanced User Experience**: Clickable game cards, "View Details" buttons, mobile-responsive design
+- **Image Optimization**: Lazy loading, error handling, and loading states throughout
+
+### **Current Architecture**
+
+- **Frontend**: HTMX + TypeScript + Progressive Web App capabilities
+- **Backend**: Hono.js on Cloudflare Workers with server-side rendering
+- **Data Layer**: Google Sheets (inventory) + BGG API (game data) + D1 SQLite (operational data) + KV (caching)
+- **Deployment**: Cloudflare Workers with edge deployment and automatic scaling
+
+### **Current Route Structure**
+
+```
+GET /                           # Two-path home screen
+GET /browse                     # Advanced filtering and game discovery
+GET /browse/games               # HTMX endpoint for filtered game cards
+GET /games/:id                  # Individual game detail pages
+GET /recommend                  # 5-step recommendation wizard
+GET /recommend/step/1-5         # Individual wizard steps
+GET /recommend/results          # Personalized recommendations
+GET /api/stats                  # Home page statistics
+GET /admin/*                    # Admin endpoints for sync and cache management
+```
 
 ## User Stories & Requirements
 
@@ -473,6 +536,68 @@ CREATE TABLE checkout_analytics (
 - Handle concurrent usage from 10+ tablets simultaneously
 - Database queries optimized for < 50ms response times
 - CDN delivery for static assets and images
+
+## Next Phase Recommendations
+
+### **RECOMMENDED NEXT: Phase 4B - Rental Management** 📋
+
+**Priority: HIGH** - Completes the core business functionality
+
+This phase would transform the current discovery platform into a fully functional rental business:
+
+#### **Checkout Flow**
+
+- **Game Reservation System**: Allow customers to reserve available games
+- **Customer Information Collection**: Name and contact details for accountability
+- **Checkout Confirmation**: Clear confirmation with game details and expected return time
+- **Staff Notification**: Alert staff when games are checked out
+
+#### **Return Management**
+
+- **Return Processing**: Staff interface to mark games as returned
+- **Condition Assessment**: Track game condition and maintenance needs
+- **Automatic Availability Updates**: Real-time status updates across all tablets
+- **Overdue Tracking**: Identify and manage overdue rentals
+
+#### **Admin Dashboard**
+
+- **Active Rentals Overview**: Real-time view of all checked-out games
+- **Inventory Management**: Add/edit games, manage copies, track conditions
+- **Usage Analytics**: Popular games, peak times, utilization rates
+- **Staff Management**: User roles, permissions, and activity logs
+
+#### **Email Notifications**
+
+- **Checkout Confirmations**: Professional email receipts for customers
+- **Return Reminders**: Automated reminders for overdue games
+- **Staff Alerts**: Notifications for important events and issues
+
+**Why Phase 4B Next:**
+
+- **Completes the MVP**: Turns browsers into paying customers
+- **Enables Business Operations**: Staff can actually manage rentals
+- **High ROI**: Directly impacts revenue generation
+- **Natural User Journey**: Customers can now complete the full rental process
+
+### **Alternative Phases for Consideration**
+
+#### **Phase 4C: Enhanced Features** ⚡
+
+**Priority: MEDIUM** - Power user features for increased engagement
+
+- User accounts with rental history and preferences
+- Wishlist system with availability notifications
+- Customer reviews and ratings
+- PWA features for offline functionality
+
+#### **Phase 4D: Analytics & Growth** 📊
+
+**Priority: LOWER** - Optimization and scaling features
+
+- Advanced usage analytics and reporting
+- A/B testing framework for UI improvements
+- SEO optimization for organic discovery
+- Social sharing and viral growth features
 
 ## Future Enhancements
 
