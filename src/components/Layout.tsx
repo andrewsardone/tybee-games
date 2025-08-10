@@ -74,25 +74,101 @@ const Layout: FC<LayoutProps> = ({ children, title = 'Tybee Games' }) => {
               padding: 20px;
               box-shadow: 0 2px 10px rgba(0,0,0,0.1);
               transition: transform 0.2s ease;
+              display: flex;
+              flex-direction: column;
             }
             .game-card:hover {
               transform: translateY(-2px);
             }
+            
+            /* Enhanced game card layout */
+            .game-image {
+              margin-bottom: 16px;
+            }
+            .game-image img {
+              width: 100%;
+              height: 150px;
+              object-fit: cover;
+              border-radius: 8px;
+              background: #f5f5f7;
+            }
+            .game-placeholder {
+              width: 100%;
+              height: 150px;
+              background: #f5f5f7;
+              border-radius: 8px;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              color: #86868b;
+            }
+            .game-placeholder span {
+              font-size: 32px;
+              margin-bottom: 8px;
+            }
+            .game-placeholder small {
+              font-size: 12px;
+            }
+            .game-content {
+              flex: 1;
+              display: flex;
+              flex-direction: column;
+            }
             .game-title {
               font-size: 18px;
               font-weight: 600;
-              margin-bottom: 8px;
+              margin-bottom: 4px;
               color: #1d1d1f;
+            }
+            .game-year {
+              font-size: 14px;
+              color: #86868b;
+              margin-bottom: 8px;
             }
             .game-description {
               color: #86868b;
               font-size: 14px;
               line-height: 1.4;
+              margin-bottom: 12px;
+              flex: 1;
             }
             .game-meta {
-              margin-top: 12px;
               font-size: 12px;
               color: #86868b;
+              margin-bottom: 8px;
+            }
+            .game-categories {
+              margin-bottom: 12px;
+            }
+            .category-tag {
+              display: inline-block;
+              background: #f2f2f7;
+              color: #1d1d1f;
+              padding: 2px 8px;
+              border-radius: 12px;
+              font-size: 11px;
+              margin-right: 6px;
+              margin-bottom: 4px;
+            }
+            .game-footer {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-top: auto;
+            }
+            .game-rating {
+              font-size: 12px;
+              color: #86868b;
+              font-weight: 500;
+            }
+            .enrichment-status {
+              margin-top: 8px;
+              text-align: center;
+            }
+            .enrichment-status small {
+              color: #86868b;
+              font-style: italic;
             }
             .status {
               display: inline-block;
@@ -100,7 +176,6 @@ const Layout: FC<LayoutProps> = ({ children, title = 'Tybee Games' }) => {
               border-radius: 16px;
               font-size: 12px;
               font-weight: 500;
-              margin-top: 12px;
             }
             .available {
               background-color: #d1f2eb;

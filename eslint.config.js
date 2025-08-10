@@ -28,6 +28,10 @@ export default [
         fetch: 'readonly',
         // Cloudflare Workers globals
         D1Database: 'readonly',
+        KVNamespace: 'readonly',
+        // Browser/Worker globals
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
       },
     },
     plugins: {
