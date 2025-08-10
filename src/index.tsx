@@ -5,7 +5,11 @@ import { syncGameCopies, getOutOfSyncGames } from './services/copySync';
 import { GoogleSheetsService } from './services/googleSheets';
 import { KVCacheService } from './services/cache';
 import { GameDataService } from './services/gameData';
-import { getQueryParams, buildQueryString } from './services/search';
+import {
+  getQueryParams,
+  buildQueryString,
+  queryParamsToEnrichedFilters,
+} from './services/search';
 import Layout from './components/Layout';
 import HomePage from './components/HomePage';
 import BrowsePage from './components/BrowsePage';
@@ -18,6 +22,7 @@ import RecommendationStep3 from './components/RecommendationStep3';
 import RecommendationStep4 from './components/RecommendationStep4';
 import RecommendationStep5 from './components/RecommendationStep5';
 import RecommendationResults from './components/RecommendationResults';
+import GameDetailPage from './components/GameDetailPage';
 import {
   RecommendationService,
   type RecommendationPreferences,
@@ -45,7 +50,17 @@ app.get('/', async (c) => {
 // Browse page - game library with filters
 app.get('/browse', async (c) => {
   const queryParams = getQueryParams(c);
-  const { players, duration, complexity, search } = queryParams;
+  const {
+    players,
+    duration,
+    complexity,
+    search,
+    category,
+    mechanic,
+    rating,
+    year,
+    availableOnly,
+  } = queryParams;
   const queryString = buildQueryString(queryParams);
 
   return c.render(
@@ -55,6 +70,11 @@ app.get('/browse', async (c) => {
         duration={duration}
         complexity={complexity}
         search={search}
+        category={category}
+        mechanic={mechanic}
+        rating={rating}
+        year={year}
+        availableOnly={availableOnly}
         queryString={queryString}
       />
     </Layout>
@@ -72,11 +92,7 @@ app.get('/browse/games', async (c) => {
     const queryParams = getQueryParams(c);
 
     // Convert query params to enriched game filters
-    const filters = {
-      players: queryParams.players ? parseInt(queryParams.players) : undefined,
-      search: queryParams.search || undefined,
-      availableOnly: true, // Only show available games by default
-    };
+    const filters = queryParamsToEnrichedFilters(queryParams);
 
     const games = await gameDataService.getFilteredGames(filters);
 
@@ -286,6 +302,41 @@ app.get('/recommend/results', async (c) => {
     return c.render(
       <Layout>
         <ErrorMessage message="Failed to generate recommendations. Please try again." />
+      </Layout>
+    );
+  }
+});
+
+// Individual game detail page
+app.get('/games/:id', async (c) => {
+  try {
+    const gameId = c.req.param('id');
+    const db = createDatabase(c.env.DB);
+    const sheetsConfig = getGoogleSheetsConfig(c.env);
+    const cache = new KVCacheService(c.env.CACHE);
+    const gameDataService = new GameDataService(db, sheetsConfig, cache);
+
+    const games = await gameDataService.getEnrichedGames();
+    const game = games.find((g) => g.id === gameId);
+
+    if (!game) {
+      return c.render(
+        <Layout>
+          <ErrorMessage message="Game not found. It may have been removed from our collection." />
+        </Layout>
+      );
+    }
+
+    return c.render(
+      <Layout>
+        <GameDetailPage game={game} />
+      </Layout>
+    );
+  } catch (error) {
+    console.error('Error loading game details:', error);
+    return c.render(
+      <Layout>
+        <ErrorMessage message="Failed to load game details. Please try again." />
       </Layout>
     );
   }

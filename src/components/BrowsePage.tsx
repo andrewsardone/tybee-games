@@ -1,11 +1,16 @@
 import { FC } from 'hono/jsx';
-import FilterForm from './FilterForm';
+import AdvancedFilterForm from './AdvancedFilterForm';
 
 interface BrowsePageProps {
   players: string;
   duration: string;
   complexity: string;
   search: string;
+  category: string;
+  mechanic: string;
+  rating: string;
+  year: string;
+  availableOnly: string;
   queryString: string;
 }
 
@@ -14,6 +19,11 @@ const BrowsePage: FC<BrowsePageProps> = ({
   duration,
   complexity,
   search,
+  category,
+  mechanic,
+  rating,
+  year,
+  availableOnly,
   queryString,
 }) => {
   return (
@@ -32,11 +42,16 @@ const BrowsePage: FC<BrowsePageProps> = ({
         <p>Explore our complete collection of board games</p>
       </div>
 
-      <FilterForm
+      <AdvancedFilterForm
         players={players}
         duration={duration}
         complexity={complexity}
         search={search}
+        category={category}
+        mechanic={mechanic}
+        rating={rating}
+        year={year}
+        availableOnly={availableOnly}
       />
 
       <div

@@ -10,16 +10,24 @@ const EnrichedGameCard: FC<EnrichedGameCardProps> = ({ game }) => {
 
   return (
     <div className="game-card" id={`game-${game.id}`}>
-      <div className="game-image">
-        {game.bggData?.thumbnail ? (
-          <img src={game.displayThumbnail} alt={game.name} loading="lazy" />
-        ) : (
-          <div className="game-placeholder">
-            <span>🎲</span>
-            <small>Loading image...</small>
-          </div>
-        )}
-      </div>
+      <button
+        className="game-image-link"
+        hx-get={`/games/${game.id}`}
+        hx-target="body"
+        hx-swap="transition:true"
+        hx-push-url="true"
+      >
+        <div className="game-image">
+          {game.bggData?.thumbnail ? (
+            <img src={game.displayThumbnail} alt={game.name} loading="lazy" />
+          ) : (
+            <div className="game-placeholder">
+              <span>🎲</span>
+              <small>Loading image...</small>
+            </div>
+          )}
+        </div>
+      </button>
       <div className="game-content">
         <div className="game-title">{game.name}</div>
         {game.yearPublished && (
@@ -57,6 +65,15 @@ const EnrichedGameCard: FC<EnrichedGameCardProps> = ({ game }) => {
             <span className="game-rating">⭐ {game.rating.toFixed(1)}</span>
           )}
         </div>
+        <button
+          className="view-details-button"
+          hx-get={`/games/${game.id}`}
+          hx-target="body"
+          hx-swap="transition:true"
+          hx-push-url="true"
+        >
+          View Details →
+        </button>
         {!game.enriched && (
           <div className="enrichment-status">
             <small>Loading details...</small>

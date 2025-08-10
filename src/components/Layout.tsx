@@ -508,6 +508,335 @@ const Layout: FC<LayoutProps> = ({ children, title = 'Tybee Games' }) => {
               from { opacity: 0; }
             }
             
+            /* Advanced filter styles */
+            .advanced-filters {
+              background: white;
+              border-radius: 12px;
+              padding: 24px;
+              margin-bottom: 24px;
+              box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            }
+            .primary-filters {
+              margin-bottom: 16px;
+            }
+            .advanced-toggle {
+              text-align: center;
+              margin-bottom: 16px;
+            }
+            .toggle-advanced {
+              background: #f2f2f7;
+              border: none;
+              padding: 8px 16px;
+              border-radius: 8px;
+              font-size: 14px;
+              cursor: pointer;
+              color: #007aff;
+              transition: background 0.2s ease;
+            }
+            .toggle-advanced:hover {
+              background: #e8e8ed;
+            }
+            .secondary-filters {
+              max-height: 0;
+              overflow: hidden;
+              transition: max-height 0.3s ease;
+            }
+            .secondary-filters.expanded {
+              max-height: 200px;
+            }
+            .search-input {
+              font-size: 16px !important;
+            }
+            .filter-actions {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-top: 16px;
+              padding-top: 16px;
+              border-top: 1px solid #f2f2f7;
+            }
+            .filter-info {
+              font-size: 14px;
+              color: #86868b;
+            }
+            
+            /* Game detail page styles */
+            .game-detail {
+              max-width: 1000px;
+              margin: 0 auto;
+            }
+            .detail-header {
+              margin-bottom: 24px;
+            }
+            .game-hero {
+              display: grid;
+              grid-template-columns: 300px 1fr;
+              gap: 32px;
+              margin-bottom: 40px;
+              background: white;
+              border-radius: 16px;
+              padding: 32px;
+              box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            }
+            .game-image-container {
+              position: relative;
+            }
+            .game-hero-image {
+              width: 100%;
+              height: auto;
+              border-radius: 12px;
+              box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            }
+            .availability-badge {
+              position: absolute;
+              top: 12px;
+              right: 12px;
+              background: rgba(255, 255, 255, 0.95);
+              backdrop-filter: blur(10px);
+              border-radius: 8px;
+              padding: 8px 12px;
+              font-size: 12px;
+              font-weight: 600;
+            }
+            .availability-badge .available {
+              color: #34c759;
+            }
+            .availability-badge .unavailable {
+              color: #ff3b30;
+            }
+            .game-info {
+              display: flex;
+              flex-direction: column;
+              gap: 16px;
+            }
+            .game-title {
+              font-size: 32px;
+              font-weight: 700;
+              color: #1d1d1f;
+              margin: 0;
+            }
+            .game-meta {
+              display: flex;
+              gap: 16px;
+              flex-wrap: wrap;
+            }
+            .meta-item {
+              display: flex;
+              gap: 8px;
+            }
+            .meta-label {
+              font-weight: 600;
+              color: #86868b;
+            }
+            .meta-value {
+              color: #1d1d1f;
+            }
+            .game-stats {
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+              gap: 16px;
+            }
+            .stat-card {
+              background: #f8f9fa;
+              border-radius: 12px;
+              padding: 16px;
+              text-align: center;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              gap: 8px;
+            }
+            .stat-icon {
+              font-size: 24px;
+            }
+            .stat-label {
+              font-size: 12px;
+              color: #86868b;
+              font-weight: 500;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+            }
+            .stat-value {
+              font-size: 14px;
+              font-weight: 600;
+              color: #1d1d1f;
+            }
+            .complexity-score,
+            .rank-info {
+              font-size: 12px;
+              color: #86868b;
+              font-weight: normal;
+            }
+            .action-buttons {
+              display: flex;
+              gap: 12px;
+              margin-top: 8px;
+            }
+            .rent-button,
+            .wishlist-button {
+              padding: 12px 24px;
+              border: none;
+              border-radius: 12px;
+              font-size: 16px;
+              font-weight: 600;
+              cursor: pointer;
+              transition: all 0.2s ease;
+              flex: 1;
+            }
+            .rent-button.primary {
+              background: linear-gradient(135deg, #34c759 0%, #28a745 100%);
+              color: white;
+            }
+            .rent-button.primary:hover {
+              background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+              transform: translateY(-1px);
+            }
+            .wishlist-button.secondary {
+              background: #f2f2f7;
+              color: #1d1d1f;
+              border: 2px solid #d2d2d7;
+            }
+            .wishlist-button.secondary:hover {
+              background: #e8e8ed;
+              border-color: #b8b8bd;
+              transform: translateY(-1px);
+            }
+            .game-description {
+              background: white;
+              border-radius: 16px;
+              padding: 32px;
+              margin-bottom: 32px;
+              box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            }
+            .game-description h2 {
+              font-size: 24px;
+              font-weight: 700;
+              margin: 0 0 16px 0;
+              color: #1d1d1f;
+            }
+            .description-content {
+              font-size: 16px;
+              line-height: 1.6;
+              color: #1d1d1f;
+            }
+            .game-details {
+              background: white;
+              border-radius: 16px;
+              padding: 32px;
+              margin-bottom: 32px;
+              box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            }
+            .details-grid {
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+              gap: 32px;
+            }
+            .detail-section h3 {
+              font-size: 18px;
+              font-weight: 600;
+              margin: 0 0 16px 0;
+              color: #1d1d1f;
+            }
+            .tag-list {
+              display: flex;
+              flex-wrap: wrap;
+              gap: 8px;
+            }
+            .tag {
+              background: #f2f2f7;
+              color: #1d1d1f;
+              padding: 6px 12px;
+              border-radius: 16px;
+              font-size: 14px;
+              font-weight: 500;
+            }
+            .category-tag {
+              background: #e3f2fd;
+              color: #1976d2;
+            }
+            .mechanic-tag {
+              background: #f3e5f5;
+              color: #7b1fa2;
+            }
+            .related-actions {
+              background: white;
+              border-radius: 16px;
+              padding: 32px;
+              box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            }
+            .related-actions h2 {
+              font-size: 24px;
+              font-weight: 700;
+              margin: 0 0 24px 0;
+              color: #1d1d1f;
+              text-align: center;
+            }
+            .action-cards {
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+              gap: 24px;
+            }
+            .action-card {
+              background: #f8f9fa;
+              border-radius: 12px;
+              padding: 24px;
+              text-align: center;
+            }
+            .action-card h3 {
+              font-size: 18px;
+              font-weight: 600;
+              margin: 0 0 8px 0;
+              color: #1d1d1f;
+            }
+            .action-card p {
+              font-size: 14px;
+              color: #86868b;
+              margin: 0 0 16px 0;
+              line-height: 1.4;
+            }
+            .action-button {
+              background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+              color: white;
+              border: none;
+              padding: 10px 20px;
+              border-radius: 8px;
+              font-size: 14px;
+              font-weight: 600;
+              cursor: pointer;
+              transition: all 0.2s ease;
+            }
+            .action-button:hover {
+              background: linear-gradient(135deg, #357abd 0%, #2968a3 100%);
+              transform: translateY(-1px);
+            }
+            
+            /* Enhanced game card styles */
+            .game-image-link {
+              background: none;
+              border: none;
+              padding: 0;
+              cursor: pointer;
+              width: 100%;
+              display: block;
+            }
+            .view-details-button {
+              width: 100%;
+              background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+              color: white;
+              border: none;
+              padding: 8px 16px;
+              border-radius: 8px;
+              font-size: 14px;
+              font-weight: 500;
+              cursor: pointer;
+              transition: all 0.2s ease;
+              margin-top: 12px;
+            }
+            .view-details-button:hover {
+              background: linear-gradient(135deg, #357abd 0%, #2968a3 100%);
+              transform: translateY(-1px);
+            }
+            
             /* Recommendation wizard styles */
             .recommendation-step {
               max-width: 600px;
@@ -1036,6 +1365,56 @@ const Layout: FC<LayoutProps> = ({ children, title = 'Tybee Games' }) => {
               }
               .no-results-actions button {
                 width: 100%;
+              }
+              
+              /* Game detail mobile */
+              .game-hero {
+                grid-template-columns: 1fr;
+                gap: 24px;
+                padding: 24px;
+              }
+              .game-image-container {
+                max-width: 250px;
+                margin: 0 auto;
+              }
+              .game-title {
+                font-size: 24px;
+                text-align: center;
+              }
+              .game-stats {
+                grid-template-columns: repeat(2, 1fr);
+              }
+              .action-buttons {
+                flex-direction: column;
+              }
+              .game-description,
+              .game-details,
+              .related-actions {
+                padding: 20px;
+              }
+              .details-grid {
+                grid-template-columns: 1fr;
+                gap: 24px;
+              }
+              .action-cards {
+                grid-template-columns: 1fr;
+              }
+              
+              /* Advanced filters mobile */
+              .advanced-filters {
+                padding: 16px;
+              }
+              .filter-row {
+                grid-template-columns: 1fr;
+                gap: 12px;
+              }
+              .secondary-filters.expanded {
+                max-height: 600px;
+              }
+              .filter-actions {
+                flex-direction: column;
+                gap: 12px;
+                text-align: center;
               }
             }
             

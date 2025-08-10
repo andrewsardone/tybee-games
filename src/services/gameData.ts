@@ -45,6 +45,11 @@ export interface EnrichedGameFilters {
   search?: string;
   availableOnly?: boolean;
   categories?: string[];
+  mechanics?: string[];
+  minRating?: number;
+  yearRange?: string;
+  category?: string;
+  mechanic?: string;
 }
 
 export class GameDataService {
@@ -293,18 +298,34 @@ export class GameDataService {
       });
     }
 
-    // Search filter
+    // Search filter (enhanced)
     if (filters.search) {
       const searchTerm = filters.search.toLowerCase();
       filtered = filtered.filter(
         (game) =>
           game.name.toLowerCase().includes(searchTerm) ||
           game.description.toLowerCase().includes(searchTerm) ||
-          game.categories.some((cat) => cat.toLowerCase().includes(searchTerm))
+          game.categories.some((cat) =>
+            cat.toLowerCase().includes(searchTerm)
+          ) ||
+          game.publisher.some((pub) =>
+            pub.toLowerCase().includes(searchTerm)
+          ) ||
+          (game.bggData?.mechanics || []).some((mech) =>
+            mech.toLowerCase().includes(searchTerm)
+          )
       );
     }
 
-    // Category filter
+    // Category filter (single category)
+    if (filters.category) {
+      const categoryTerm = filters.category.toLowerCase();
+      filtered = filtered.filter((game) =>
+        game.categories.some((cat) => cat.toLowerCase().includes(categoryTerm))
+      );
+    }
+
+    // Categories filter (multiple categories)
     if (filters.categories && filters.categories.length > 0) {
       filtered = filtered.filter((game) =>
         filters.categories!.some((filterCat) =>
@@ -313,6 +334,53 @@ export class GameDataService {
           )
         )
       );
+    }
+
+    // Mechanic filter
+    if (filters.mechanic) {
+      const mechanicTerm = filters.mechanic.toLowerCase();
+      filtered = filtered.filter((game) =>
+        (game.bggData?.mechanics || []).some((mech) =>
+          mech.toLowerCase().includes(mechanicTerm)
+        )
+      );
+    }
+
+    // Mechanics filter (multiple mechanics)
+    if (filters.mechanics && filters.mechanics.length > 0) {
+      filtered = filtered.filter((game) =>
+        filters.mechanics!.some((filterMech) =>
+          (game.bggData?.mechanics || []).some((gameMech) =>
+            gameMech.toLowerCase().includes(filterMech.toLowerCase())
+          )
+        )
+      );
+    }
+
+    // Rating filter
+    if (filters.minRating) {
+      filtered = filtered.filter((game) => game.rating >= filters.minRating!);
+    }
+
+    // Year range filter
+    if (filters.yearRange) {
+      filtered = filtered.filter((game) => {
+        const year = game.yearPublished;
+        if (!year) return false;
+
+        switch (filters.yearRange) {
+          case '2020s':
+            return year >= 2020;
+          case '2010s':
+            return year >= 2010 && year < 2020;
+          case '2000s':
+            return year >= 2000 && year < 2010;
+          case 'classic':
+            return year < 2000;
+          default:
+            return true;
+        }
+      });
     }
 
     // Available only filter
