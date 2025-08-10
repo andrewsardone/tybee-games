@@ -471,6 +471,110 @@ app.post('/admin/cache/refresh', async (c) => {
   }
 });
 
+// Admin endpoint for full resync (clear all caches and rebuild from Google Sheets)
+app.post('/admin/full-resync', async (c) => {
+  try {
+    const db = createDatabase(c.env.DB);
+    const sheetsConfig = getGoogleSheetsConfig(c.env);
+    const cache = new KVCacheService(c.env.CACHE);
+    const gameDataService = new GameDataService(db, sheetsConfig, cache);
+
+    console.log('Starting full resync...');
+    const enrichedGames = await gameDataService.fullResync();
+
+    const enrichedCount = enrichedGames.filter((g) => g.enriched).length;
+
+    return c.json({
+      success: true,
+      message: `Full resync complete: ${enrichedGames.length} games loaded, ${enrichedCount} enriched with BGG data`,
+      totalGames: enrichedGames.length,
+      enrichedGames: enrichedCount,
+      missingEnrichment: enrichedGames.length - enrichedCount,
+    });
+  } catch (error) {
+    console.error('Error during full resync:', error);
+    return c.json(
+      {
+        success: false,
+        error: 'Failed to complete full resync',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
+      500
+    );
+  }
+});
+
+// Admin endpoint for progressive enrichment (enrich games missing BGG data)
+app.post('/admin/enrich-missing', async (c) => {
+  try {
+    const db = createDatabase(c.env.DB);
+    const sheetsConfig = getGoogleSheetsConfig(c.env);
+    const cache = new KVCacheService(c.env.CACHE);
+    const gameDataService = new GameDataService(db, sheetsConfig, cache);
+
+    // Get maxGames parameter (default 10)
+    const maxGames = parseInt(c.req.query('maxGames') || '10');
+
+    console.log(
+      `Starting progressive enrichment for up to ${maxGames} games...`
+    );
+    const result = await gameDataService.enrichMissingGames(maxGames);
+
+    return c.json({
+      success: true,
+      message: `Progressive enrichment complete: ${result.enriched}/${result.total} games enriched`,
+      enrichedCount: result.enriched,
+      attemptedCount: result.total,
+    });
+  } catch (error) {
+    console.error('Error during progressive enrichment:', error);
+    return c.json(
+      {
+        success: false,
+        error: 'Failed to complete progressive enrichment',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
+      500
+    );
+  }
+});
+
+// Admin endpoint to check enrichment status
+app.get('/admin/enrichment-status', async (c) => {
+  try {
+    const db = createDatabase(c.env.DB);
+    const sheetsConfig = getGoogleSheetsConfig(c.env);
+    const cache = new KVCacheService(c.env.CACHE);
+    const gameDataService = new GameDataService(db, sheetsConfig, cache);
+
+    const games = await gameDataService.getEnrichedGames();
+    const enrichedGames = games.filter((g) => g.enriched);
+    const missingGames = games.filter((g) => !g.enriched);
+
+    return c.json({
+      success: true,
+      totalGames: games.length,
+      enrichedGames: enrichedGames.length,
+      missingEnrichment: missingGames.length,
+      enrichmentPercentage: Math.round(
+        (enrichedGames.length / games.length) * 100
+      ),
+      missingGamesList: missingGames
+        .slice(0, 20)
+        .map((g) => ({ id: g.id, name: g.name })), // First 20 missing games
+    });
+  } catch (error) {
+    console.error('Error checking enrichment status:', error);
+    return c.json(
+      {
+        success: false,
+        error: 'Failed to check enrichment status',
+      },
+      500
+    );
+  }
+});
+
 // Scheduled handler for Cron Triggers
 async function scheduled(
   controller: any, // ScheduledController from Cloudflare Workers

@@ -119,6 +119,106 @@ export class GameDataService {
   }
 
   /**
+   * Progressive enrichment - enrich games that are missing BGG data
+   */
+  async enrichMissingGames(
+    maxGames: number = 10
+  ): Promise<{ enriched: number; total: number }> {
+    console.log(
+      `Starting progressive enrichment for up to ${maxGames} games...`
+    );
+
+    const allGames = await this.getEnrichedGames();
+    const missingGames = allGames.filter((game) => !game.enriched);
+
+    if (missingGames.length === 0) {
+      console.log('No games need enrichment');
+      return { enriched: 0, total: 0 };
+    }
+
+    console.log(`Found ${missingGames.length} games needing enrichment`);
+
+    // Take only the requested number of games
+    const gamesToEnrich = missingGames.slice(0, maxGames);
+    let enrichedCount = 0;
+
+    for (const game of gamesToEnrich) {
+      try {
+        console.log(`Attempting to enrich: ${game.name}`);
+
+        // Try to get BGG data
+        const bggId = await this.bggService.resolveBGGId(game.name);
+        if (bggId) {
+          const bggData = await this.bggService.getGameData(bggId);
+          if (bggData) {
+            // Update the game in our catalog
+            game.bggId = bggId;
+            game.bggData = bggData;
+            game.enriched = true;
+
+            // Update computed fields
+            game.displayImage =
+              bggData.image || '/static/img/game-placeholder.png';
+            game.displayThumbnail =
+              bggData.thumbnail || '/static/img/game-placeholder-thumb.png';
+            game.playerRange = this.formatPlayerRange(
+              bggData.minPlayers,
+              bggData.maxPlayers
+            );
+            game.durationRange = this.formatDurationRange(
+              bggData.minPlayTime,
+              bggData.maxPlayTime
+            );
+            game.complexityLevel = bggData.complexity || 0;
+            game.description = bggData.description || '';
+            game.yearPublished = bggData.yearPublished || null;
+            game.publisher = bggData.publisher || [];
+            game.categories = bggData.categories || [];
+            game.rating = bggData.rating || 0;
+
+            enrichedCount++;
+            console.log(`Successfully enriched: ${game.name}`);
+          }
+        }
+
+        // Add delay between enrichments
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+      } catch (error) {
+        console.warn(`Failed to enrich ${game.name}:`, error);
+      }
+    }
+
+    if (enrichedCount > 0) {
+      // Update the cache with newly enriched games
+      await this.cache.putWithMetadata(
+        this.catalogCacheKey,
+        allGames,
+        this.catalogTTL,
+        `v1-${Date.now()}`
+      );
+      console.log(
+        `Progressive enrichment complete: ${enrichedCount}/${gamesToEnrich.length} games enriched`
+      );
+    }
+
+    return { enriched: enrichedCount, total: gamesToEnrich.length };
+  }
+
+  /**
+   * Clear all caches and rebuild from Google Sheets
+   */
+  async fullResync(): Promise<EnrichedGame[]> {
+    console.log('Starting full resync from Google Sheets...');
+
+    // Clear all relevant caches
+    await this.cache.delete(this.catalogCacheKey);
+    await this.sheetsService.invalidateCache();
+
+    // Rebuild catalog
+    return await this.buildEnrichedCatalog();
+  }
+
+  /**
    * Build enriched catalog by combining Sheets + BGG data
    */
   private async buildEnrichedCatalog(): Promise<EnrichedGame[]> {
@@ -129,17 +229,8 @@ export class GameDataService {
       const inventory = await this.sheetsService.getGames();
       const activeGames = inventory.filter((game) => game.isActive);
 
-      // Enrich each game with BGG data in parallel
-      const enrichmentPromises = activeGames.map(async (game) => {
-        try {
-          return await this.enrichSingleGame(game);
-        } catch (error) {
-          console.warn(`Failed to enrich game ${game.name}:`, error);
-          return this.createFallbackEnrichedGame(game);
-        }
-      });
-
-      const enrichedGames = await Promise.all(enrichmentPromises);
+      // Enrich games in smaller batches to avoid overwhelming BGG API
+      const enrichedGames = await this.enrichGamesInBatches(activeGames, 5); // 5 games at a time
 
       // Cache the results
       await this.cache.putWithMetadata(
@@ -155,6 +246,53 @@ export class GameDataService {
       console.error('Failed to build enriched catalog:', error);
       throw error;
     }
+  }
+
+  /**
+   * Enrich games in batches to avoid overwhelming BGG API
+   */
+  private async enrichGamesInBatches(
+    games: GameWithCopyCount[],
+    batchSize: number = 5
+  ): Promise<EnrichedGame[]> {
+    const enrichedGames: EnrichedGame[] = [];
+
+    console.log(
+      `Enriching ${games.length} games in batches of ${batchSize}...`
+    );
+
+    for (let i = 0; i < games.length; i += batchSize) {
+      const batch = games.slice(i, i + batchSize);
+      console.log(
+        `Processing batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(games.length / batchSize)} (${batch.length} games)`
+      );
+
+      // Process batch with individual error handling
+      const batchPromises = batch.map(async (game) => {
+        try {
+          return await this.enrichSingleGame(game);
+        } catch (error) {
+          console.warn(`Failed to enrich game ${game.name}:`, error);
+          return this.createFallbackEnrichedGame(game);
+        }
+      });
+
+      const batchResults = await Promise.all(batchPromises);
+      enrichedGames.push(...batchResults);
+
+      // Add delay between batches to be respectful to BGG API
+      if (i + batchSize < games.length) {
+        console.log('Waiting 3 seconds before next batch...');
+        await new Promise((resolve) => setTimeout(resolve, 3000));
+      }
+    }
+
+    const enrichedCount = enrichedGames.filter((g) => g.enriched).length;
+    console.log(
+      `Batch enrichment complete: ${enrichedCount}/${games.length} games successfully enriched`
+    );
+
+    return enrichedGames;
   }
 
   /**

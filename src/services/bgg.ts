@@ -37,8 +37,94 @@ export class BGGService {
   private readonly searchCacheTTL = 7 * 24 * 60 * 60; // 7 days
   private readonly gameCacheTTL = 24 * 60 * 60; // 24 hours
 
+  // Rate limiting configuration
+  private readonly rateLimitDelay = 2000; // 2 seconds between requests
+  private readonly maxRetries = 3;
+  private readonly retryDelay = 5000; // 5 seconds between retries
+  private lastRequestTime = 0;
+
   constructor(cache: Cache) {
     this.cache = cache;
+  }
+
+  /**
+   * Rate-limited fetch with retry logic
+   */
+  private async rateLimitedFetch(
+    url: string,
+    retryCount = 0
+  ): Promise<globalThis.Response> {
+    // Ensure we don't exceed rate limits
+    const now = Date.now();
+    const timeSinceLastRequest = now - this.lastRequestTime;
+    if (timeSinceLastRequest < this.rateLimitDelay) {
+      const waitTime = this.rateLimitDelay - timeSinceLastRequest;
+      console.log(`BGG rate limiting: waiting ${waitTime}ms`);
+      await new Promise((resolve) => setTimeout(resolve, waitTime));
+    }
+
+    this.lastRequestTime = Date.now();
+
+    try {
+      const response = await fetch(url, {
+        headers: {
+          'User-Agent': 'TybeeGames/1.0 (Board Game Rental System)',
+        },
+      });
+
+      if (response.status === 429) {
+        // Rate limited - wait longer and retry
+        if (retryCount < this.maxRetries) {
+          const backoffDelay = this.retryDelay * Math.pow(2, retryCount); // Exponential backoff
+          console.log(
+            `BGG rate limited (429), retrying in ${backoffDelay}ms (attempt ${retryCount + 1}/${this.maxRetries})`
+          );
+          await new Promise((resolve) => setTimeout(resolve, backoffDelay));
+          return this.rateLimitedFetch(url, retryCount + 1);
+        } else {
+          throw new Error(
+            `BGG API rate limited after ${this.maxRetries} retries`
+          );
+        }
+      }
+
+      if (response.status === 202) {
+        // BGG returns 202 when data is being processed - wait and retry
+        if (retryCount < this.maxRetries) {
+          console.log(
+            `BGG processing data (202), retrying in ${this.retryDelay}ms`
+          );
+          await new Promise((resolve) => setTimeout(resolve, this.retryDelay));
+          return this.rateLimitedFetch(url, retryCount + 1);
+        } else {
+          throw new Error(
+            `BGG API still processing after ${this.maxRetries} retries`
+          );
+        }
+      }
+
+      if (!response.ok) {
+        throw new Error(
+          `BGG API error: ${response.status} ${response.statusText}`
+        );
+      }
+
+      return response;
+    } catch (error) {
+      if (
+        retryCount < this.maxRetries &&
+        (error as Error).message.includes('fetch')
+      ) {
+        // Network error - retry with backoff
+        const backoffDelay = this.retryDelay * Math.pow(2, retryCount);
+        console.log(
+          `BGG network error, retrying in ${backoffDelay}ms (attempt ${retryCount + 1}/${this.maxRetries})`
+        );
+        await new Promise((resolve) => setTimeout(resolve, backoffDelay));
+        return this.rateLimitedFetch(url, retryCount + 1);
+      }
+      throw error;
+    }
   }
 
   /**
@@ -57,11 +143,7 @@ export class BGGService {
       const encodedName = encodeURIComponent(name);
       const url = `${this.baseUrl}/search?query=${encodedName}&type=boardgame`;
 
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(`BGG search API error: ${response.status}`);
-      }
-
+      const response = await this.rateLimitedFetch(url);
       const xmlText = await response.text();
       const results = this.parseSearchXML(xmlText);
 
@@ -92,11 +174,7 @@ export class BGGService {
     try {
       const url = `${this.baseUrl}/thing?id=${bggId}&stats=1`;
 
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(`BGG game API error: ${response.status}`);
-      }
-
+      const response = await this.rateLimitedFetch(url);
       const xmlText = await response.text();
       const gameData = this.parseGameXML(xmlText);
 
@@ -109,7 +187,7 @@ export class BGGService {
 
       return gameData;
     } catch (error) {
-      console.error('BGG game data error:', error);
+      console.error(`BGG game data error for ID ${bggId}:`, error);
       return null;
     }
   }
