@@ -112,3 +112,6 @@ Thumbs.db
 
 # public static assets which are distributed at build time
 public/static/dist/
+
+# Claude
+CLAUDE.md
