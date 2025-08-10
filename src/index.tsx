@@ -12,6 +12,16 @@ import BrowsePage from './components/BrowsePage';
 import EnrichedResultsInfo from './components/EnrichedResultsInfo';
 import GamesGrid from './components/GamesGrid';
 import ErrorMessage from './components/ErrorMessage';
+import RecommendationStep1 from './components/RecommendationStep1';
+import RecommendationStep2 from './components/RecommendationStep2';
+import RecommendationStep3 from './components/RecommendationStep3';
+import RecommendationStep4 from './components/RecommendationStep4';
+import RecommendationStep5 from './components/RecommendationStep5';
+import RecommendationResults from './components/RecommendationResults';
+import {
+  RecommendationService,
+  type RecommendationPreferences,
+} from './services/recommendations';
 
 type Bindings = {
   DB: D1Database;
@@ -117,35 +127,168 @@ app.get('/api/stats', async (c) => {
   }
 });
 
-// Recommendation flow (placeholder for Phase 3)
+// Recommendation flow - redirect to step 1
 app.get('/recommend', async (c) => {
+  return c.redirect('/recommend/step/1');
+});
+
+// Recommendation Step 1: Player Count
+app.get('/recommend/step/1', async (c) => {
+  const players = c.req.query('players');
+
   return c.render(
     <Layout>
-      <div className="page-header">
-        <button
-          className="back-button"
-          hx-get="/"
-          hx-target="body"
-          hx-swap="transition:true"
-          hx-push-url="true"
-        >
-          ← Back to Home
-        </button>
-        <h1>Game Recommendation</h1>
-        <p>Coming in Phase 3 - 5-step recommendation wizard</p>
-      </div>
-      <div className="placeholder-content">
-        <p>This will be the 5-step recommendation wizard:</p>
-        <ol>
-          <li>How many players?</li>
-          <li>Learning time preference?</li>
-          <li>Play duration available?</li>
-          <li>Strategy vs luck preference?</li>
-          <li>Theme preferences?</li>
-        </ol>
-      </div>
+      <RecommendationStep1 currentPlayers={players} />
     </Layout>
   );
+});
+
+// Recommendation Step 2: Learning Time
+app.get('/recommend/step/2', async (c) => {
+  const players = c.req.query('players') || '';
+  const learningTime = c.req.query('learningTime');
+
+  if (!players) {
+    return c.redirect('/recommend/step/1');
+  }
+
+  return c.render(
+    <Layout>
+      <RecommendationStep2
+        players={players}
+        currentLearningTime={learningTime}
+      />
+    </Layout>
+  );
+});
+
+// Recommendation Step 3: Play Duration
+app.get('/recommend/step/3', async (c) => {
+  const players = c.req.query('players') || '';
+  const learningTime = c.req.query('learningTime') || '';
+  const duration = c.req.query('duration');
+
+  if (!players || !learningTime) {
+    return c.redirect('/recommend/step/1');
+  }
+
+  return c.render(
+    <Layout>
+      <RecommendationStep3
+        players={players}
+        learningTime={learningTime}
+        currentDuration={duration}
+      />
+    </Layout>
+  );
+});
+
+// Recommendation Step 4: Strategy vs Luck
+app.get('/recommend/step/4', async (c) => {
+  const players = c.req.query('players') || '';
+  const learningTime = c.req.query('learningTime') || '';
+  const duration = c.req.query('duration') || '';
+  const strategy = c.req.query('strategy');
+
+  if (!players || !learningTime || !duration) {
+    return c.redirect('/recommend/step/1');
+  }
+
+  return c.render(
+    <Layout>
+      <RecommendationStep4
+        players={players}
+        learningTime={learningTime}
+        duration={duration}
+        currentStrategy={strategy}
+      />
+    </Layout>
+  );
+});
+
+// Recommendation Step 5: Theme Preferences
+app.get('/recommend/step/5', async (c) => {
+  const players = c.req.query('players') || '';
+  const learningTime = c.req.query('learningTime') || '';
+  const duration = c.req.query('duration') || '';
+  const strategy = c.req.query('strategy') || '';
+  const themes = c.req.query('themes');
+
+  if (!players || !learningTime || !duration || !strategy) {
+    return c.redirect('/recommend/step/1');
+  }
+
+  const currentThemes = themes ? themes.split(',') : [];
+
+  return c.render(
+    <Layout>
+      <RecommendationStep5
+        players={players}
+        learningTime={learningTime}
+        duration={duration}
+        strategy={strategy}
+        currentThemes={currentThemes}
+      />
+    </Layout>
+  );
+});
+
+// Recommendation Results
+app.get('/recommend/results', async (c) => {
+  try {
+    const players = c.req.query('players') || '';
+    const learningTime = c.req.query('learningTime') || '';
+    const duration = c.req.query('duration') || '';
+    const strategy = c.req.query('strategy') || '';
+    const themesParam = c.req.query('themes') || '';
+
+    if (!players || !learningTime || !duration || !strategy) {
+      return c.redirect('/recommend/step/1');
+    }
+
+    // Parse preferences
+    const preferences: RecommendationPreferences = {
+      players: players === '7+' ? 7 : parseInt(players),
+      learningTime: learningTime as 'quick' | 'moderate' | 'complex',
+      playDuration: duration as 'short' | 'medium' | 'long' | 'any',
+      strategyPreference: parseInt(strategy),
+      themes: themesParam ? themesParam.split(',').filter((t) => t.trim()) : [],
+    };
+
+    // Get games and generate recommendations
+    const db = createDatabase(c.env.DB);
+    const sheetsConfig = getGoogleSheetsConfig(c.env);
+    const cache = new KVCacheService(c.env.CACHE);
+    const gameDataService = new GameDataService(db, sheetsConfig, cache);
+
+    const games = await gameDataService.getEnrichedGames();
+    const recommendations = RecommendationService.generateRecommendations(
+      games,
+      preferences
+    );
+
+    return c.render(
+      <Layout>
+        <RecommendationResults
+          recommendations={recommendations}
+          preferences={{
+            players,
+            learningTime,
+            duration,
+            strategy,
+            themes: preferences.themes,
+          }}
+        />
+      </Layout>
+    );
+  } catch (error) {
+    console.error('Error generating recommendations:', error);
+    return c.render(
+      <Layout>
+        <ErrorMessage message="Failed to generate recommendations. Please try again." />
+      </Layout>
+    );
+  }
 });
 
 // Keep the original /games route for direct access
