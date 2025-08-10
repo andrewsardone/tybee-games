@@ -247,6 +247,267 @@ const Layout: FC<LayoutProps> = ({ children, title = 'Tybee Games' }) => {
               text-align: center;
             }
             
+            /* Home page styles */
+            .home-paths {
+              display: grid;
+              grid-template-columns: 1fr;
+              gap: 24px;
+              margin-bottom: 40px;
+            }
+            .path-card {
+              background: white;
+              border-radius: 16px;
+              padding: 32px;
+              text-align: center;
+              box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+              transition: transform 0.2s ease, box-shadow 0.2s ease;
+            }
+            .path-card:hover {
+              transform: translateY(-4px);
+              box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+            }
+            .path-icon {
+              font-size: 48px;
+              margin-bottom: 16px;
+            }
+            .path-card h2 {
+              font-size: 24px;
+              font-weight: 700;
+              margin: 0 0 12px 0;
+              color: #1d1d1f;
+            }
+            .path-card p {
+              font-size: 16px;
+              color: #86868b;
+              margin: 0 0 24px 0;
+              line-height: 1.5;
+            }
+            .path-button {
+              padding: 12px 32px;
+              border: none;
+              border-radius: 12px;
+              font-size: 16px;
+              font-weight: 600;
+              cursor: pointer;
+              transition: all 0.2s ease;
+              min-width: 160px;
+            }
+            .path-button.primary {
+              background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+              color: white;
+            }
+            .path-button.primary:hover {
+              background: linear-gradient(135deg, #357abd 0%, #2968a3 100%);
+              transform: translateY(-1px);
+            }
+            .path-button.secondary {
+              background: #f2f2f7;
+              color: #1d1d1f;
+              border: 2px solid #d2d2d7;
+            }
+            .path-button.secondary:hover {
+              background: #e8e8ed;
+              border-color: #b8b8bd;
+              transform: translateY(-1px);
+            }
+            .home-stats {
+              background: white;
+              border-radius: 12px;
+              padding: 20px;
+              text-align: center;
+              box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+              font-size: 14px;
+              color: #86868b;
+            }
+            .stats-grid {
+              display: grid;
+              grid-template-columns: repeat(3, 1fr);
+              gap: 20px;
+            }
+            .stat-item {
+              text-align: center;
+            }
+            .stat-item strong {
+              display: block;
+              font-size: 24px;
+              font-weight: 700;
+              color: #1d1d1f;
+              margin-bottom: 4px;
+            }
+            .stat-item span {
+              font-size: 12px;
+              color: #86868b;
+            }
+            
+            /* Placeholder content */
+            .placeholder-content {
+              background: white;
+              border-radius: 12px;
+              padding: 32px;
+              box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+              text-align: center;
+            }
+            .placeholder-content p {
+              font-size: 16px;
+              color: #86868b;
+              margin-bottom: 20px;
+            }
+            .placeholder-content ol {
+              text-align: left;
+              max-width: 400px;
+              margin: 0 auto;
+              font-size: 14px;
+              color: #1d1d1f;
+            }
+            .placeholder-content li {
+              margin-bottom: 8px;
+            }
+            
+            /* Page header styles */
+            .page-header {
+              margin-bottom: 30px;
+            }
+            .back-button {
+              background: #f2f2f7;
+              border: none;
+              padding: 8px 16px;
+              border-radius: 8px;
+              font-size: 14px;
+              cursor: pointer;
+              color: #007aff;
+              margin-bottom: 16px;
+              transition: background 0.2s ease;
+            }
+            .back-button:hover {
+              background: #e8e8ed;
+            }
+            .page-header h1 {
+              font-size: 32px;
+              font-weight: 700;
+              margin: 0 0 8px 0;
+              color: #1d1d1f;
+            }
+            .page-header p {
+              font-size: 16px;
+              color: #86868b;
+              margin: 0;
+            }
+            
+            /* Loading skeleton styles */
+            .loading-skeleton {
+              display: grid;
+              grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+              gap: 20px;
+            }
+            .skeleton-card {
+              background: white;
+              border-radius: 12px;
+              padding: 20px;
+              box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+              height: 300px;
+              position: relative;
+              overflow: hidden;
+            }
+            .skeleton-card::before {
+              content: '';
+              position: absolute;
+              top: 0;
+              left: -100%;
+              width: 100%;
+              height: 100%;
+              background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.4),
+                transparent
+              );
+              animation: skeleton-loading 1.5s infinite;
+            }
+            @keyframes skeleton-loading {
+              0% { left: -100%; }
+              100% { left: 100%; }
+            }
+            
+            /* Loading indicator styles */
+            .loading-indicator {
+              display: none;
+              align-items: center;
+              justify-content: center;
+              gap: 12px;
+              padding: 40px;
+              text-align: center;
+              color: #86868b;
+            }
+            .loading-indicator.htmx-indicator {
+              display: flex;
+            }
+            .loading-spinner {
+              width: 20px;
+              height: 20px;
+              border: 2px solid #f3f3f3;
+              border-top: 2px solid #4a90e2;
+              border-radius: 50%;
+              animation: spin 1s linear infinite;
+            }
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+            
+            /* View transition styles */
+            @view-transition {
+              navigation: auto;
+            }
+            
+            /* Transition names for smooth navigation */
+            .site-header {
+              view-transition-name: site-header;
+            }
+            .home-paths {
+              view-transition-name: home-paths;
+            }
+            .page-header {
+              view-transition-name: page-header;
+            }
+            .games-grid {
+              view-transition-name: games-grid;
+            }
+            .filters {
+              view-transition-name: filters;
+            }
+            
+            /* Transition animations */
+            ::view-transition-old(root) {
+              animation: slide-out-left 0.3s ease-in-out;
+            }
+            ::view-transition-new(root) {
+              animation: slide-in-right 0.3s ease-in-out;
+            }
+            
+            @keyframes slide-out-left {
+              to { transform: translateX(-100%); }
+            }
+            @keyframes slide-in-right {
+              from { transform: translateX(100%); }
+            }
+            
+            /* Fade transitions for content areas */
+            ::view-transition-old(games-grid),
+            ::view-transition-old(home-paths) {
+              animation: fade-out 0.2s ease-in-out;
+            }
+            ::view-transition-new(games-grid),
+            ::view-transition-new(home-paths) {
+              animation: fade-in 0.2s ease-in-out;
+            }
+            
+            @keyframes fade-out {
+              to { opacity: 0; }
+            }
+            @keyframes fade-in {
+              from { opacity: 0; }
+            }
+            
             /* Mobile optimizations */
             @media (max-width: 767px) {
               .header-content {
@@ -287,6 +548,23 @@ const Layout: FC<LayoutProps> = ({ children, title = 'Tybee Games' }) => {
                 font-size: 32px;
               }
               .tagline {
+                font-size: 18px;
+              }
+              .home-paths {
+                grid-template-columns: 1fr 1fr;
+                gap: 32px;
+              }
+              .path-card {
+                padding: 40px;
+              }
+              .path-icon {
+                font-size: 64px;
+                margin-bottom: 20px;
+              }
+              .path-card h2 {
+                font-size: 28px;
+              }
+              .path-card p {
                 font-size: 18px;
               }
             }

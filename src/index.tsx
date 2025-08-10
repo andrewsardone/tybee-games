@@ -7,7 +7,8 @@ import { KVCacheService } from './services/cache';
 import { GameDataService } from './services/gameData';
 import { getQueryParams, buildQueryString } from './services/search';
 import Layout from './components/Layout';
-import MainPage from './components/MainPage';
+import HomePage from './components/HomePage';
+import BrowsePage from './components/BrowsePage';
 import EnrichedResultsInfo from './components/EnrichedResultsInfo';
 import GamesGrid from './components/GamesGrid';
 import ErrorMessage from './components/ErrorMessage';
@@ -22,51 +23,24 @@ type Bindings = {
 
 const app = new Hono<{ Bindings: Bindings }>();
 
+// Home page - two clear paths
 app.get('/', async (c) => {
-  // Get URL parameters to pre-populate form
+  return c.render(
+    <Layout>
+      <HomePage />
+    </Layout>
+  );
+});
+
+// Browse page - game library with filters
+app.get('/browse', async (c) => {
   const queryParams = getQueryParams(c);
   const { players, duration, complexity, search } = queryParams;
-
-  // Check if this is an HTMX request
-  const isHtmxRequest = c.req.header('HX-Request') === 'true';
-
-  // If it's an HTMX request, return just the games partial
-  if (isHtmxRequest) {
-    try {
-      const db = createDatabase(c.env.DB);
-      const sheetsConfig = getGoogleSheetsConfig(c.env);
-      const cache = new KVCacheService(c.env.CACHE);
-      const gameDataService = new GameDataService(db, sheetsConfig, cache);
-
-      // Convert query params to enriched game filters
-      const filters = {
-        players: queryParams.players
-          ? parseInt(queryParams.players)
-          : undefined,
-        search: queryParams.search || undefined,
-        availableOnly: true, // Only show available games by default
-      };
-
-      const games = await gameDataService.getFilteredGames(filters);
-
-      // Return JSX components for HTMX response
-      return c.render(
-        <>
-          <EnrichedResultsInfo gameCount={games.length} filters={filters} />
-          <GamesGrid games={games} />
-        </>
-      );
-    } catch (error) {
-      console.error('Error loading games:', error);
-      return c.render(<ErrorMessage />);
-    }
-  }
-
   const queryString = buildQueryString(queryParams);
 
   return c.render(
     <Layout>
-      <MainPage
+      <BrowsePage
         players={players}
         duration={duration}
         complexity={complexity}
@@ -77,10 +51,107 @@ app.get('/', async (c) => {
   );
 });
 
+// Browse games API - returns game cards for HTMX
+app.get('/browse/games', async (c) => {
+  try {
+    const db = createDatabase(c.env.DB);
+    const sheetsConfig = getGoogleSheetsConfig(c.env);
+    const cache = new KVCacheService(c.env.CACHE);
+    const gameDataService = new GameDataService(db, sheetsConfig, cache);
+
+    const queryParams = getQueryParams(c);
+
+    // Convert query params to enriched game filters
+    const filters = {
+      players: queryParams.players ? parseInt(queryParams.players) : undefined,
+      search: queryParams.search || undefined,
+      availableOnly: true, // Only show available games by default
+    };
+
+    const games = await gameDataService.getFilteredGames(filters);
+
+    // Return JSX components for HTMX response
+    return c.render(
+      <>
+        <EnrichedResultsInfo gameCount={games.length} filters={filters} />
+        <GamesGrid games={games} />
+      </>
+    );
+  } catch (error) {
+    console.error('Error loading games:', error);
+    return c.render(<ErrorMessage />);
+  }
+});
+
+// API endpoint for home page stats
+app.get('/api/stats', async (c) => {
+  try {
+    const db = createDatabase(c.env.DB);
+    const sheetsConfig = getGoogleSheetsConfig(c.env);
+    const cache = new KVCacheService(c.env.CACHE);
+    const gameDataService = new GameDataService(db, sheetsConfig, cache);
+
+    const games = await gameDataService.getEnrichedGames();
+    const availableGames = games.filter((g) => g.availableCopies > 0);
+    const enrichedGames = games.filter((g) => g.enriched);
+
+    return c.render(
+      <div className="stats-grid">
+        <div className="stat-item">
+          <strong>{games.length}</strong>
+          <span>Total Games</span>
+        </div>
+        <div className="stat-item">
+          <strong>{availableGames.length}</strong>
+          <span>Available Now</span>
+        </div>
+        <div className="stat-item">
+          <strong>{enrichedGames.length}</strong>
+          <span>With Details</span>
+        </div>
+      </div>
+    );
+  } catch (error) {
+    console.error('Error loading stats:', error);
+    return c.render(<span>Stats unavailable</span>);
+  }
+});
+
+// Recommendation flow (placeholder for Phase 3)
+app.get('/recommend', async (c) => {
+  return c.render(
+    <Layout>
+      <div className="page-header">
+        <button
+          className="back-button"
+          hx-get="/"
+          hx-target="body"
+          hx-swap="transition:true"
+          hx-push-url="true"
+        >
+          ← Back to Home
+        </button>
+        <h1>Game Recommendation</h1>
+        <p>Coming in Phase 3 - 5-step recommendation wizard</p>
+      </div>
+      <div className="placeholder-content">
+        <p>This will be the 5-step recommendation wizard:</p>
+        <ol>
+          <li>How many players?</li>
+          <li>Learning time preference?</li>
+          <li>Play duration available?</li>
+          <li>Strategy vs luck preference?</li>
+          <li>Theme preferences?</li>
+        </ol>
+      </div>
+    </Layout>
+  );
+});
+
 // Keep the original /games route for direct access
 app.get('/games', async (c) => {
-  // Redirect to home page for now, or could return the full page
-  return c.redirect('/');
+  // Redirect to browse page
+  return c.redirect('/browse');
 });
 
 // Admin endpoint to sync game copies from Google Sheets
