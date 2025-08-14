@@ -36,8 +36,8 @@ const RecommendationStep4: FC<RecommendationStep4Props> = ({
         hx-trigger="change"
         className="step-form"
       >
-        <div className="strategy-options">
-          <label className="strategy-option">
+        <div className="duration-options">
+          <label className="duration-option">
             <input
               type="radio"
               name="strategy"
@@ -54,7 +54,7 @@ const RecommendationStep4: FC<RecommendationStep4Props> = ({
             </div>
           </label>
 
-          <label className="strategy-option">
+          <label className="duration-option">
             <input
               type="radio"
               name="strategy"
@@ -71,7 +71,7 @@ const RecommendationStep4: FC<RecommendationStep4Props> = ({
             </div>
           </label>
 
-          <label className="strategy-option">
+          <label className="duration-option">
             <input
               type="radio"
               name="strategy"
@@ -88,7 +88,7 @@ const RecommendationStep4: FC<RecommendationStep4Props> = ({
             </div>
           </label>
 
-          <label className="strategy-option">
+          <label className="duration-option">
             <input
               type="radio"
               name="strategy"
@@ -105,7 +105,7 @@ const RecommendationStep4: FC<RecommendationStep4Props> = ({
             </div>
           </label>
 
-          <label className="strategy-option">
+          <label className="duration-option">
             <input
               type="radio"
               name="strategy"
