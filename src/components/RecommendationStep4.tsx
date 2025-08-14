@@ -33,6 +33,7 @@ const RecommendationStep4: FC<RecommendationStep4Props> = ({
         hx-target="body"
         hx-swap="innerHTML scroll:top"
         hx-push-url="true"
+        hx-trigger="change delay:1s"
         className="step-form"
       >
         <div className="strategy-slider">
@@ -92,9 +93,6 @@ const RecommendationStep4: FC<RecommendationStep4Props> = ({
             hx-push-url="true"
           >
             ← Previous
-          </button>
-          <button type="submit" className="next-button">
-            Final Step →
           </button>
         </div>
       </form>

@@ -29,6 +29,7 @@ const RecommendationStep3: FC<RecommendationStep3Props> = ({
         hx-target="body"
         hx-swap="innerHTML scroll:top"
         hx-push-url="true"
+        hx-trigger="change"
         className="step-form"
       >
         <div className="duration-options">
@@ -115,9 +116,6 @@ const RecommendationStep3: FC<RecommendationStep3Props> = ({
             hx-push-url="true"
           >
             ← Previous
-          </button>
-          <button type="submit" className="next-button">
-            Next Step →
           </button>
         </div>
       </form>
