@@ -123,22 +123,14 @@ app.get('/api/stats', async (c) => {
       return c.render(<span>Loading stats...</span>);
     }
 
-    const availableGames = games.filter((g) => g.availableCopies > 0);
+    // Only show enriched games count (games with BGG details)
     const enrichedGames = games.filter((g) => g.enriched);
 
     return c.render(
       <div className="stats-grid">
         <div className="stat-item">
-          <strong>{games.length}</strong>
-          <span>Total Games</span>
-        </div>
-        <div className="stat-item">
-          <strong>{availableGames.length}</strong>
-          <span>Available Now</span>
-        </div>
-        <div className="stat-item">
           <strong>{enrichedGames.length}</strong>
-          <span>With Details</span>
+          <span>Games Available</span>
         </div>
       </div>
     );

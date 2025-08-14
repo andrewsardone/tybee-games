@@ -472,8 +472,8 @@ export class GameDataService {
     games: EnrichedGame[],
     filters: EnrichedGameFilters
   ): EnrichedGame[] {
-    let filtered = games;
-
+    // Filter out games missing BGG details (only show enriched games)
+    let filtered = games.filter((game) => game.enriched);
     // Player count filter
     if (filters.players) {
       filtered = filtered.filter((game) => {
