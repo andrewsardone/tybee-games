@@ -138,14 +138,16 @@ const GameDetailPage: FC<GameDetailPageProps> = ({ game }) => {
             )}
           </div>
 
-          {game.availableCopies > 0 && (
+          {game.availableCopies > 0 && bgg && (
             <div className="action-buttons">
-              <button className="rent-button primary">
-                🎯 Reserve This Game
-              </button>
-              <button className="wishlist-button secondary">
-                ❤️ Add to Wishlist
-              </button>
+              <a
+                href={`https://boardgamegeek.com/boardgame/${bgg.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="instructions-button primary"
+              >
+                📖 View Instructions & Rules
+              </a>
             </div>
           )}
         </div>
