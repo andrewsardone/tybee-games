@@ -33,54 +33,94 @@ const RecommendationStep4: FC<RecommendationStep4Props> = ({
         hx-target="body"
         hx-swap="innerHTML scroll:top"
         hx-push-url="true"
-        hx-trigger="change delay:1s"
+        hx-trigger="change"
         className="step-form"
       >
-        <div className="strategy-slider">
-          <div className="slider-labels">
-            <span className="slider-label">🎲 More Luck</span>
-            <span className="slider-label">🧠 More Strategy</span>
-          </div>
-
-          <div className="slider-container">
+        <div className="strategy-options">
+          <label className="strategy-option">
             <input
-              type="range"
+              type="radio"
               name="strategy"
-              min="1"
-              max="5"
-              value={strategyValue}
-              className="strategy-range"
-              id="strategy-slider"
+              value="1"
+              checked={strategyValue === '1'}
+              required
             />
-            <div className="slider-markers">
-              <span className="marker">1</span>
-              <span className="marker">2</span>
-              <span className="marker">3</span>
-              <span className="marker">4</span>
-              <span className="marker">5</span>
+            <div className="option-card">
+              <div className="option-icon">🎲</div>
+              <div className="option-content">
+                <h3>Pure Luck</h3>
+                <p>Dice rolls and card draws decide everything</p>
+              </div>
             </div>
-          </div>
+          </label>
 
-          <div className="strategy-descriptions">
-            <div className="strategy-desc" data-value="1">
-              <strong>Pure Luck</strong> - Dice rolls and card draws decide
-              everything
+          <label className="strategy-option">
+            <input
+              type="radio"
+              name="strategy"
+              value="2"
+              checked={strategyValue === '2'}
+              required
+            />
+            <div className="option-card">
+              <div className="option-icon">🎲🎯</div>
+              <div className="option-content">
+                <h3>Mostly Luck</h3>
+                <p>Some choices, but chance is king</p>
+              </div>
             </div>
-            <div className="strategy-desc" data-value="2">
-              <strong>Mostly Luck</strong> - Some choices, but chance is king
+          </label>
+
+          <label className="strategy-option">
+            <input
+              type="radio"
+              name="strategy"
+              value="3"
+              checked={strategyValue === '3'}
+              required
+            />
+            <div className="option-card">
+              <div className="option-icon">⚖️</div>
+              <div className="option-content">
+                <h3>Balanced</h3>
+                <p>Good mix of skill and chance</p>
+              </div>
             </div>
-            <div className="strategy-desc active" data-value="3">
-              <strong>Balanced</strong> - Good mix of skill and chance
+          </label>
+
+          <label className="strategy-option">
+            <input
+              type="radio"
+              name="strategy"
+              value="4"
+              checked={strategyValue === '4'}
+              required
+            />
+            <div className="option-card">
+              <div className="option-icon">🧠🎲</div>
+              <div className="option-content">
+                <h3>Mostly Strategy</h3>
+                <p>Planning matters, with some luck</p>
+              </div>
             </div>
-            <div className="strategy-desc" data-value="4">
-              <strong>Mostly Strategy</strong> - Planning matters, with some
-              luck
+          </label>
+
+          <label className="strategy-option">
+            <input
+              type="radio"
+              name="strategy"
+              value="5"
+              checked={strategyValue === '5'}
+              required
+            />
+            <div className="option-card">
+              <div className="option-icon">🧠</div>
+              <div className="option-content">
+                <h3>Pure Strategy</h3>
+                <p>Every decision counts, minimal luck</p>
+              </div>
             </div>
-            <div className="strategy-desc" data-value="5">
-              <strong>Pure Strategy</strong> - Every decision counts, minimal
-              luck
-            </div>
-          </div>
+          </label>
         </div>
 
         <div className="step-actions">
@@ -96,24 +136,6 @@ const RecommendationStep4: FC<RecommendationStep4Props> = ({
           </button>
         </div>
       </form>
-
-      <script>
-        {`
-          document.addEventListener('DOMContentLoaded', function() {
-            const slider = document.getElementById('strategy-slider');
-            const descriptions = document.querySelectorAll('.strategy-desc');
-            
-            function updateDescription() {
-              descriptions.forEach(desc => desc.classList.remove('active'));
-              const activeDesc = document.querySelector('[data-value="' + slider.value + '"]');
-              if (activeDesc) activeDesc.classList.add('active');
-            }
-            
-            slider.addEventListener('input', updateDescription);
-            updateDescription();
-          });
-        `}
-      </script>
     </div>
   );
 };
