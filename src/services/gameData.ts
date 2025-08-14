@@ -70,26 +70,54 @@ export class GameDataService {
   }
 
   /**
-   * Get enriched games with stale-while-revalidate caching
+   * Get enriched games from cache only (no revalidation)
+   * Used for user-facing routes to ensure instant loading
    */
-  async getEnrichedGames(): Promise<EnrichedGame[]> {
+  async getCachedGames(): Promise<EnrichedGame[]> {
     const cacheResult = await this.cache.getWithMetadata<EnrichedGame[]>(
       this.catalogCacheKey
     );
 
-    if (cacheResult.fresh && cacheResult.data) {
-      // Fresh cache - return immediately
+    if (cacheResult.data) {
+      // Return cached data regardless of freshness
       return cacheResult.data;
     }
 
-    if (cacheResult.stale && cacheResult.data) {
-      // Stale cache - return stale data and refresh in background
-      this.refreshCatalogInBackground();
-      return cacheResult.data;
+    // If no cache exists, return empty array rather than blocking
+    console.warn('No cached games found - returning empty array');
+    return [];
+  }
+
+  /**
+   * Get enriched games with stale-while-revalidate caching
+   * Modified to support cache-only mode for user requests
+   */
+  async getEnrichedGames(
+    forceRefresh: boolean = false
+  ): Promise<EnrichedGame[]> {
+    if (forceRefresh) {
+      // Admin/manual refresh - use original stale-while-revalidate logic
+      const cacheResult = await this.cache.getWithMetadata<EnrichedGame[]>(
+        this.catalogCacheKey
+      );
+
+      if (cacheResult.fresh && cacheResult.data) {
+        // Fresh cache - return immediately
+        return cacheResult.data;
+      }
+
+      if (cacheResult.stale && cacheResult.data) {
+        // Stale cache - return stale data and refresh in background
+        this.refreshCatalogInBackground();
+        return cacheResult.data;
+      }
+
+      // No cache or very old - fetch fresh data synchronously
+      return await this.buildEnrichedCatalog();
     }
 
-    // No cache or very old - fetch fresh data synchronously
-    return await this.buildEnrichedCatalog();
+    // Default behavior: cache-only (no revalidation)
+    return await this.getCachedGames();
   }
 
   /**

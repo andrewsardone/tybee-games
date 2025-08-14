@@ -117,7 +117,12 @@ app.get('/api/stats', async (c) => {
     const cache = new KVCacheService(c.env.CACHE);
     const gameDataService = new GameDataService(db, sheetsConfig, cache);
 
-    const games = await gameDataService.getEnrichedGames();
+    const games = await gameDataService.getCachedGames();
+
+    if (games.length === 0) {
+      return c.render(<span>Loading stats...</span>);
+    }
+
     const availableGames = games.filter((g) => g.availableCopies > 0);
     const enrichedGames = games.filter((g) => g.enriched);
 
@@ -277,7 +282,24 @@ app.get('/recommend/results', async (c) => {
     const cache = new KVCacheService(c.env.CACHE);
     const gameDataService = new GameDataService(db, sheetsConfig, cache);
 
-    const games = await gameDataService.getEnrichedGames();
+    const games = await gameDataService.getCachedGames();
+
+    if (games.length === 0) {
+      return c.render(
+        <Layout>
+          <div className="empty-cache-message">
+            <h2>Games Loading...</h2>
+            <p>
+              Our game library is being updated. Please try again in a moment.
+            </p>
+            <p>
+              <a href="/browse">Browse games</a> or <a href="/">return home</a>
+            </p>
+          </div>
+        </Layout>
+      );
+    }
+
     const recommendations = RecommendationService.generateRecommendations(
       games,
       preferences
@@ -316,7 +338,24 @@ app.get('/games/:id', async (c) => {
     const cache = new KVCacheService(c.env.CACHE);
     const gameDataService = new GameDataService(db, sheetsConfig, cache);
 
-    const games = await gameDataService.getEnrichedGames();
+    const games = await gameDataService.getCachedGames();
+
+    if (games.length === 0) {
+      return c.render(
+        <Layout>
+          <div className="empty-cache-message">
+            <h2>Games Loading...</h2>
+            <p>
+              Our game library is being updated. Please try again in a moment.
+            </p>
+            <p>
+              <a href="/browse">Browse games</a> or <a href="/">return home</a>
+            </p>
+          </div>
+        </Layout>
+      );
+    }
+
     const game = games.find((g) => g.id === gameId);
 
     if (!game) {
@@ -389,7 +428,7 @@ app.get('/admin/sync-status', async (c) => {
 
     // Also check enriched catalog status
     const gameDataService = new GameDataService(db, sheetsConfig, cache);
-    const enrichedGames = await gameDataService.getEnrichedGames();
+    const enrichedGames = await gameDataService.getEnrichedGames(true);
     const enrichedCount = enrichedGames.filter((g) => g.enriched).length;
 
     return c.json({
@@ -548,7 +587,7 @@ app.get('/admin/enrichment-status', async (c) => {
     const cache = new KVCacheService(c.env.CACHE);
     const gameDataService = new GameDataService(db, sheetsConfig, cache);
 
-    const games = await gameDataService.getEnrichedGames();
+    const games = await gameDataService.getEnrichedGames(true);
     const enrichedGames = games.filter((g) => g.enriched);
     const missingGames = games.filter((g) => !g.enriched);
 
