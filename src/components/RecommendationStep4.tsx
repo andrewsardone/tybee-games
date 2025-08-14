@@ -13,7 +13,7 @@ const RecommendationStep4: FC<RecommendationStep4Props> = ({
   duration,
   currentStrategy,
 }) => {
-  const strategyValue = currentStrategy || '3';
+  const strategyValue = currentStrategy;
 
   return (
     <div className="recommendation-step">
