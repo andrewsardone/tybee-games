@@ -257,7 +257,7 @@ const Layout: FC<LayoutProps> = ({ children, title = 'Tybee Games' }) => {
               display: grid;
               grid-template-columns: 1fr;
               gap: 24px;
-              margin-bottom: 40px;
+              margin-bottom: 24px;
             }
             .path-card {
               background: white;
@@ -266,6 +266,8 @@ const Layout: FC<LayoutProps> = ({ children, title = 'Tybee Games' }) => {
               text-align: center;
               box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
               transition: transform 0.2s ease, box-shadow 0.2s ease;
+              display: flex;
+              flex-direction: column;
             }
             .path-card:hover {
               transform: translateY(-4px);
@@ -286,6 +288,7 @@ const Layout: FC<LayoutProps> = ({ children, title = 'Tybee Games' }) => {
               color: #86868b;
               margin: 0 0 24px 0;
               line-height: 1.5;
+              flex-grow: 1;
             }
             .path-button {
               padding: 12px 32px;
@@ -315,33 +318,85 @@ const Layout: FC<LayoutProps> = ({ children, title = 'Tybee Games' }) => {
               border-color: #b8b8bd;
               transform: translateY(-1px);
             }
-            .home-stats {
-              background: white;
-              border-radius: 12px;
-              padding: 20px;
-              text-align: center;
-              box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-              font-size: 14px;
-              color: #86868b;
+            
+            /* Quick filter links */
+            .filter-links {
+              display: flex;
+              flex-wrap: wrap;
+              gap: 8px;
+              justify-content: center;
+            }
+            .filter-link {
+              background: #f8f9fa;
+              border: 1px solid #e9ecef;
+              border-radius: 20px;
+              padding: 8px 14px;
+              font-size: 13px;
+              color: #495057;
+              cursor: pointer;
+              transition: all 0.2s ease;
+              text-decoration: none;
+              font-weight: 500;
+            }
+            .filter-link:hover {
+              background: #e3f2fd;
+              border-color: #4a90e2;
+              color: #4a90e2;
+              transform: translateY(-1px);
+            }
+            .stats-card {
+              margin-top: 24px;
+            }
+            .stats-content {
+              display: flex;
+              align-items: center;
+              gap: 32px;
+              min-height: auto;
+              padding: 24px 32px;
+            }
+            .stats-section {
+              flex: 0 0 20%;
+              display: flex;
+              justify-content: center;
             }
             .stats-grid {
-              display: grid;
-              grid-template-columns: repeat(3, 1fr);
-              gap: 20px;
+              display: flex;
+              justify-content: center;
+              align-items: center;
             }
             .stat-item {
               text-align: center;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              gap: 8px;
             }
             .stat-item strong {
-              display: block;
-              font-size: 24px;
+              font-size: 32px;
               font-weight: 700;
-              color: #1d1d1f;
-              margin-bottom: 4px;
+              color: #4a90e2;
+              margin: 0;
             }
             .stat-item span {
-              font-size: 12px;
+              font-size: 14px;
               color: #86868b;
+              font-weight: 500;
+            }
+            .quick-filters-section {
+              flex: 0 0 80%;
+              text-align: center;
+              padding: 0;
+            }
+            .quick-filters-section h3 {
+              font-size: 18px;
+              font-weight: 600;
+              margin: 0 0 4px 0;
+              color: #1d1d1f;
+            }
+            .quick-filters-section p {
+              font-size: 14px;
+              color: #86868b;
+              margin: 0 0 16px 0;
             }
             
             /* Placeholder content */
@@ -1303,6 +1358,16 @@ const Layout: FC<LayoutProps> = ({ children, title = 'Tybee Games' }) => {
               }
               .tagline {
                 font-size: 14px;
+              }
+              
+              /* Stats section mobile */
+              .stats-content {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+              }
+              .filter-links {
+                justify-content: center;
               }
               
               /* Recommendation wizard mobile */
