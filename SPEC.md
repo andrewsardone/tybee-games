@@ -59,7 +59,7 @@ Tybee Games is a comprehensive board game rental management system designed for 
 - **Frontend**: HTMX + TypeScript + Progressive Web App capabilities
 - **Backend**: Hono.js on Cloudflare Workers with server-side rendering
 - **Data Layer**: Google Sheets (inventory) + BGG API (game data) + D1 SQLite (operational data) + KV (caching)
-- **Caching Strategy**: True stale-while-revalidate with 30-minute TTL and 2x stale serving window
+- **Caching Strategy**: Cache-first data access with manual refresh control
 - **API Integration**: Rate-limited BGG API with batch processing and comprehensive error handling
 - **Deployment**: Cloudflare Workers with edge deployment and automatic scaling
 
@@ -402,7 +402,7 @@ GET  /partials/checkout-form/:gameId  # HTML checkout form
 
 **Stale-While-Revalidate Pattern**
 
-- **Instant App Startup**: Cached content served immediately, no loading screens
+- **Instant App Startup**: Cache-first access ensures zero loading screens
 - **Background Refresh**: Data updates happen behind the scenes
 - **30-minute TTL**: Fresh data for 30 minutes, stale serving for up to 60 minutes
 - **Graceful Degradation**: App works even if BGG API is down

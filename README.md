@@ -108,7 +108,7 @@ tybee-games/
 - **Advanced Game Browsing**: Grid layout with rich BGG data and advanced filtering
 - **Individual Game Details**: Comprehensive game pages with BGG integration
 - **5-Step Recommendation Wizard**: Personalized game suggestions with explanations
-- **Instant App Startup**: Stale-while-revalidate caching for zero loading screens
+- **Instant App Startup**: Cache-first data access for zero loading screens
 
 #### **Data & Performance**
 
@@ -150,11 +150,11 @@ The application uses a sophisticated hybrid data architecture with intelligent c
 - **Google Sheets**: Game inventory (source of truth for availability)
 - **BoardGameGeek API**: Rich game data (images, descriptions, ratings, mechanics)
 - **Cloudflare D1**: Operational data (game copies, checkouts, analytics)
-- **Cloudflare KV**: Intelligent caching with stale-while-revalidate strategy
+- **Cloudflare KV**: Cache-first data access with manual refresh capability
 
 #### **Performance Strategy**
 
-- **Stale-While-Revalidate**: Instant app startup, background data refresh
+- **Cache-First Access**: Instant app startup, manual refresh control
 - **BGG Rate Limiting**: 2-second delays, exponential backoff, batch processing
 - **Progressive Enhancement**: Basic data loads first, enrichment happens asynchronously
 - **Edge Deployment**: Global CDN with sub-100ms response times
@@ -163,7 +163,7 @@ The application uses a sophisticated hybrid data architecture with intelligent c
 
 - **Backend**: HonoJS with server-side rendering and HTMX integration
 - **Frontend**: HTMX for dynamic interactions, vanilla CSS for styling
-- **Caching**: 30-minute TTL with 2x stale serving window
+- **Caching**: Cache-first data access with admin-controlled refresh
 - **Sync**: Automated synchronization with conflict detection and resolution
 
 For detailed architecture information, see [ARCHITECTURE.md](./ARCHITECTURE.md) and [SPEC.md](./SPEC.md).
