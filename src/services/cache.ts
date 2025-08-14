@@ -29,6 +29,7 @@ export interface Cache {
     ttl: number,
     version?: string
   ): Promise<void>;
+  putPersistent<T>(key: string, value: T, version?: string): Promise<void>;
   delete(key: string): Promise<void>;
 }
 
@@ -56,6 +57,17 @@ export class KVCacheService implements Cache {
 
       const now = Date.now();
       const age = now - entry.timestamp;
+
+      // For persistent storage (Infinity TTL), always consider fresh
+      if (entry.ttl === Infinity) {
+        return {
+          data: entry.data,
+          fresh: true,
+          stale: false,
+          exists: true,
+        };
+      }
+
       const fresh = age < entry.ttl;
       const stale = age >= entry.ttl && age < entry.ttl * 2; // Allow stale for 2x TTL
 
@@ -106,6 +118,26 @@ export class KVCacheService implements Cache {
     }
   }
 
+  async putPersistent<T>(
+    key: string,
+    value: T,
+    version?: string
+  ): Promise<void> {
+    try {
+      const entry: CacheEntry<T> = {
+        data: value,
+        timestamp: Date.now(),
+        ttl: Infinity, // Never expires based on TTL
+        version,
+      };
+
+      // Store without any expiration - persistent storage
+      await this.kv.put(key, JSON.stringify(entry));
+    } catch (error) {
+      console.warn('Persistent cache write error:', error);
+    }
+  }
+
   async delete(key: string): Promise<void> {
     try {
       await this.kv.delete(key);
@@ -137,6 +169,14 @@ export class NullCacheService implements Cache {
     _key: string,
     _value: T,
     _ttl: number,
+    _version?: string
+  ): Promise<void> {
+    // No-op
+  }
+
+  async putPersistent<T>(
+    _key: string,
+    _value: T,
     _version?: string
   ): Promise<void> {
     // No-op

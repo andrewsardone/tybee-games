@@ -57,7 +57,6 @@ export class GameDataService {
   private sheetsService: GoogleSheetsService;
   private bggService: BGGService;
   private readonly catalogCacheKey = 'enriched-games-catalog';
-  private readonly catalogTTL = 30 * 60; // 30 minutes
 
   constructor(
     private db: Database,
@@ -231,11 +230,10 @@ export class GameDataService {
     }
 
     if (enrichedCount > 0) {
-      // Update the cache with newly enriched games
-      await this.cache.putWithMetadata(
+      // Update the persistent storage with newly enriched games
+      await this.cache.putPersistent(
         this.catalogCacheKey,
         allGames,
-        this.catalogTTL,
         `v1-${Date.now()}`
       );
       console.log(
@@ -302,11 +300,10 @@ export class GameDataService {
       // Enrich games in smaller batches to avoid overwhelming BGG API
       const enrichedGames = await this.enrichGamesInBatches(activeGames, 5); // 5 games at a time
 
-      // Cache the results
-      await this.cache.putWithMetadata(
+      // Store the results persistently
+      await this.cache.putPersistent(
         this.catalogCacheKey,
         enrichedGames,
-        this.catalogTTL,
         `v1-${Date.now()}`
       );
 
