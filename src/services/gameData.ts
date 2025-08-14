@@ -596,16 +596,8 @@ export class GameDataService {
       filtered = filtered.filter((game) => game.availableCopies > 0);
     }
 
-    // Sort by availability then rating
-    return filtered.sort((a, b) => {
-      if (a.availableCopies !== b.availableCopies) {
-        return b.availableCopies - a.availableCopies;
-      }
-      if (a.rating !== b.rating) {
-        return b.rating - a.rating;
-      }
-      return a.name.localeCompare(b.name);
-    });
+    // Sort alphabetically by name
+    return filtered.sort((a, b) => a.name.localeCompare(b.name));
   }
 
   /**
